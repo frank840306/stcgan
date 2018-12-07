@@ -128,7 +128,7 @@ if __name__ == '__main__':
     mask_dir = os.path.join('processed_dataset', 'ISTD', 'test', 'mask')
     guo_dir = os.path.join('processed_dataset', 'ISTD', 'result', 'Guo')
     yang_dir = os.path.join('processed_dataset', 'ISTD', 'result', 'Yang')
-    gong_dir = os.path.join('processed_dataset', 'ISTD', 'result', 'gong')
+    gong_dir = os.path.join('processed_dataset', 'ISTD', 'result', 'Gong')
     stcgan_dir = os.path.join('processed_dataset', 'ISTD', 'result', 'ST-CGAN')
     
     avg_eval_scores = eval_dir_func(true_dir, guo_dir, mask_dir, test_metrics)

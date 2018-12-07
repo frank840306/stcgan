@@ -1,6 +1,6 @@
 #! /bin/bash
 
-PYTHON=python3.6
+PYTHON=python3
 GPU_ID=3
 
 

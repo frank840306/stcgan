@@ -36,6 +36,7 @@ class ShadowRemovalDataset(Dataset):
         if self.data_type != 'testing': 
             pass
         # TODO: add augmentation
+        # print(self.transform)
         if self.transform:
             shadow_img, shadow_free_img, mask_img = self.transform(shadow_img, shadow_free_img, mask_img)
         
@@ -88,6 +89,7 @@ class Resize(object):
         assert shadow_img.shape[1] == shadow_free_img.shape[1]
         assert shadow_img.shape[0] == mask_img.shape[0]
         assert shadow_img.shape[1] == mask_img.shape[1]
+        # print(shadow_free_img.shape[0], self.height)
         assert shadow_free_img.shape[0] >= self.height
         assert shadow_free_img.shape[1] >= self.width
         shadow_img = cv2.resize(shadow_img, (self.width, self.height), cv2.INTER_LINEAR)
@@ -108,9 +110,9 @@ class RandomHorizontalFlip(object):
             
             # shadow_img = cv2.flip(shadow_img, 0)
             # shadow_free_img = cv2.flip(shadow_free_img, 0)
-            shadow_img = np.fliplr(shadow_img)
-            shadow_free_img = np.fliplr(shadow_free_img)
-            mask_img = np.fliplr(mask_img)
+            shadow_img = np.fliplr(shadow_img).copy()
+            shadow_free_img = np.fliplr(shadow_free_img).copy()
+            mask_img = np.fliplr(mask_img).copy()
         
         return shadow_img, shadow_free_img, mask_img
         
@@ -124,6 +126,7 @@ class RandomCrop(object):
         assert shadow_img.shape[1] == shadow_free_img.shape[1]
         assert shadow_img.shape[0] == mask_img.shape[0]
         assert shadow_img.shape[1] == mask_img.shape[1]
+        # print(shadow_free_img.shape[0], self.height)
         assert shadow_free_img.shape[0] >= self.height
         assert shadow_free_img.shape[1] >= self.width
         

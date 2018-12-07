@@ -22,7 +22,7 @@ def get_args():
     parser.add_argument('--beta2', default=0.999, type=float, help='beta2 of adam opt')
     parser.add_argument('--valid_ratio', default=0.05, type=float, help='validation data ratio')
     # parser.add_argument('--gpu_mode', default=True, type=bool, help='use gpu or not')
-    parser.add_argument('--gpu_id', default=1, type=int, help='CUDA_VISIBLE_DEVICES')
+    parser.add_argument('--gpu_id', default=0, type=int, help='CUDA_VISIBLE_DEVICES')
     parser.add_argument('--load_model', action='store_true', help='load pretrained model or not')
     parser.add_argument('--root_dir', default='.', type=str, help='the root folder')
     parser.add_argument('--manual_seed', default=840306, type=int, help='random seed')
