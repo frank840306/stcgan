@@ -39,6 +39,11 @@ class STCGAN():
         self.lambda3 = args.lambda3
 
 
+        random.seed(args.manual_seed)
+        np.random.seed(args.manual_seed)
+        torch.manual_seed(args.manual_seed)
+        torch.cuda.manual_seed_all(args.manual_seed)
+        
         # self.gpu_mode = args.gpu_mode
         # self.gpu_id = args.gpu_id
         self.path = path

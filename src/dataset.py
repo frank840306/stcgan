@@ -65,7 +65,7 @@ def get_composed_transform(aug_dict=None):
                 "img_size":[256, 256],
             }
         }
-    for aug_key, aug_param in aug_dict.items():
+    for aug_key, aug_param in sorted(aug_dict.items(), reverse=True):
         augmentations.append(key2aug[aug_key](**aug_param))
     return Compose(augmentations)
 
