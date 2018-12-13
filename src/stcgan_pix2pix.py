@@ -167,7 +167,7 @@ class STCGAN():
                 vG2_loss = self.l1_loss(vB_fake, vB_real).item()
                 v1_loss.append(vG1_loss)
                 v2_loss.append(vG2_loss)
-                if i < 3:
+                if i == 0:
                     # save image
                     for j in range(self.batch_size_test):
                         # gt shadow
@@ -177,15 +177,15 @@ class STCGAN():
                             np.transpose((vA_real.data.cpu().numpy()[j, :, :, :] * 255).astype(np.uint8), [1, 2, 0])
                         )
                         # gt non-shadow 
-                        cv2.imwrite(
-                            os.path.join(self.path.valid_gt_shadow_free_dir, valid_name), 
-                            np.transpose((vB_real.data.cpu().numpy()[j, :, :, :] * 255).astype(np.uint8), [1, 2, 0])
-                        )
+                        # cv2.imwrite(
+                        #     os.path.join(self.path.valid_gt_shadow_free_dir, valid_name), 
+                        #     np.transpose((vB_real.data.cpu().numpy()[j, :, :, :] * 255).astype(np.uint8), [1, 2, 0])
+                        # )
                         # gt mask
-                        cv2.imwrite(
-                            os.path.join(self.path.valid_gt_mask_dir, valid_name), 
-                            np.transpose((vC_real.data.cpu().numpy()[j, :, :, :] * 255).astype(np.uint8), [1, 2, 0])
-                        )
+                        # cv2.imwrite(
+                        #     os.path.join(self.path.valid_gt_mask_dir, valid_name), 
+                        #     np.transpose((vC_real.data.cpu().numpy()[j, :, :, :] * 255).astype(np.uint8), [1, 2, 0])
+                        # )
                         # pred non-shadow
                         cv2.imwrite(
                             os.path.join(self.path.valid_shadow_free_dir, valid_name), 

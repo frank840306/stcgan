@@ -31,7 +31,8 @@ class ShadowRemovalDataset(Dataset):
         shadow_img = cv2.imread(os.path.join(datatype_dir, 'shadow', '{:0>6d}.png'.format(img_id)))
         shadow_free_img = cv2.imread(os.path.join(datatype_dir, 'non_shadow', '{:0>6d}.png'.format(img_id)))
         mask_img = cv2.imread(os.path.join(datatype_dir, 'mask', '{:0>6d}.png'.format(img_id)), cv2.IMREAD_GRAYSCALE)
-        
+        # print(os.path.join(datatype_dir, 'shadow', '{:0>6d}.png'.format(img_id)))
+        # print(os.path.join(datatype_dir, 'non_shadow', '{:0>6d}.png'.format(img_id)))
         # TODO: resize
         if self.data_type != 'testing': 
             pass

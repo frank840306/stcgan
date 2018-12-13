@@ -108,6 +108,8 @@ def eval_dir_func(true_dir, test_dir, mask_dir=None, metrics=MetricType.ALL):
             scores = eval_func(ftrue, ftest, fmask, metrics)
         else:
             scores = eval_func(ftrue, ftest, None, metrics)
+        # if scores['rmse']['all'] < 3:
+        visualize_result(true_dir, test_dir, mask_dir, fname, scores)
         # print(scores)
         for pixel_type in pixel_types:
             if metrics & MetricType.MSE: 
@@ -116,6 +118,27 @@ def eval_dir_func(true_dir, test_dir, mask_dir=None, metrics=MetricType.ALL):
                 avg_scores['rmse'][pixel_type] += scores['rmse'][pixel_type] / file_num
     logger.info(avg_scores)
     return avg_scores
+
+def visualize_result(true_dir, test_dir, mask_dir, fname, scores):
+    pos_list = [231, 232, 233, 234, 235, 236]
+    title_list = ['shadow', 'non_shadow (gt)', 'mask (gt)', 'non-shadow (paper)', 'non-shadow (my)', 'mask (my)']
+    filename_list = [
+        os.path.join('/media/yslin/Data/research/stcgan/processed_dataset/ISTD/test/shadow', fname),
+        os.path.join('/media/yslin/Data/research/stcgan/processed_dataset/ISTD/test/non_shadow', fname),
+        os.path.join(mask_dir, fname),
+        os.path.join('/media/yslin/Data/research/stcgan/processed_dataset/ISTD/result/ST-CGAN', fname),
+        os.path.join(test_dir, fname),
+        os.path.join('/media/yslin/Data/research/stcgan/task/stcgan_lrG_0.001_lrD_0.001/ISTD/result/mask', fname),
+    ]
+    kwargs_list = [{}, {}, {'cmap': 'Greys_r'}, {}, {}, {'cmap': 'Greys_r'}]
+    
+    fig = plt.figure()
+    fig.suptitle('Image: {}\n[ rmse score ] all: {:.3f}, shadow: {:.3f}, non-shadow: {:.3f}'.format(fname, scores['rmse']['all'], scores['rmse']['shadow'], scores['rmse']['shadow_free']))
+    for pos, title, filename, kwargs in zip(pos_list, title_list, filename_list, kwargs_list):
+        ax = fig.add_subplot(pos)
+        ax.set_title(title)
+        plt.imshow(mpimg.imread(filename), **kwargs)    
+    plt.show()
 
 if __name__ == '__main__':
     log_file = os.path.join('log', os.path.basename(__file__) + '.log')

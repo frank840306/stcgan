@@ -33,8 +33,9 @@ def get_args():
 
 if __name__ == "__main__":
     args = get_args()
-    path = PathHandler(root_dir=args.root_dir)
-
+    path = PathHandler(root_dir=args.root_dir, task='stcgan_lrG_{}_lrD_{}'.format(args.lrG, args.lrD))
+    path.test_dir = './src/document'
+    path.test_shadow_dir = './src/document/shadow'
     log_file = os.path.join(path.log_dir, os.path.basename(__file__) + '.log')
     set_logger(log_file)
     logger = get_logger(__name__)
