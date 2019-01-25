@@ -7,7 +7,7 @@ class PathHandler():
         self.root_dir = root_dir
         
         # set dataset directory
-        self.data_dir = os.path.join(self.root_dir, 'processed_dataset', data)
+        self.data_dir = os.path.join(self.root_dir, '..', 'processed_dataset', data)
         self.set_data_dir()
 
         # set task directory
