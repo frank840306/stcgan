@@ -204,8 +204,11 @@ class STCGAN():
                         for output_dir, output_img in zip(output_dirs, output_imgs):
                             fp = os.path.join(output_dir, result_name)
                             img = cv2.cvtColor(np.transpose((output_img.cpu().numpy()[j, :, :, :] * 255).astype(np.uint8), [1, 2, 0]), cv2.COLOR_RGB2BGR)
-                            cv2.imwrite(fp, img)
+                            cv2.imwrite(fp, img) 
             loss = {k:v / self.batch_size_test for k, v in loss.items()}
+            if save:
+                eval_dir_func(self.path.test_shadow_free_dir, self.path.result_shadow_free_dir, self.path.test_mask_dir, MetricType.MSE | MetricType.RMSE | MetricType.SSIM)
+
         return loss
     def visualize(self, total_steps):
         for i, (S_img, N_img, M_img) in enumerate(self.test_loader):
