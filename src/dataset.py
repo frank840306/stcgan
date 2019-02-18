@@ -79,6 +79,7 @@ def get_composed_transform(aug_dict=None):
 
             # }
         }
+    get_logger(__name__).info('Augmentation method: {}'.format(', '.join(aug_dict.keys())))
     for aug_key, aug_param in sorted(aug_dict.items(), reverse=True):
         augmentations.append(key2aug[aug_key](**aug_param))
     return Compose(augmentations)
@@ -177,7 +178,6 @@ class RandomColor(object):
         incr_ch_lut = self.create_LUT_8UC1([0, 64, 128, 192, 256], [0, 65, 130, 195, 256])     # [0, 70, 140, 210, 256] 
         decr_ch_lut = self.create_LUT_8UC1([0, 64, 128, 192, 256], [0, 60, 120, 165, 220])      # [0, 30, 80, 120, 192]
         self.luts = [incr_ch_lut, decr_ch_lut]
-
     def create_LUT_8UC1(self, x, y):
         spl = UnivariateSpline(x, y)
         return spl(range(256))
@@ -252,6 +252,6 @@ key2aug = {
     'RandomVerticalFlip': RandomVerticalFlip,
     'Resize': Resize,
     'RandomCrop': RandomCrop,
-    # 'RandomColor': RandomColor,
+    'RandomColor': RandomColor,
     
 }

@@ -38,6 +38,7 @@ class STCGAN():
         self.test_step = args.test_step
         self.model_step = args.model_step
         self.model_name = args.model_name
+        self.postfix = args.postfix
         
         self.lambda1 = args.lambda1
         self.lambda2 = args.lambda2
@@ -77,8 +78,26 @@ class STCGAN():
             train_img_list = sorted(os.listdir(path.train_shadow_dir))
             # train_size = len(train_img_list)
             # add augmentation here
-            training_transforms = get_composed_transform()
-            testing_transforms = None if self.mode == 'test' else get_composed_transform({"Resize": {"img_size":[128, 128]}})
+            training_transforms = get_composed_transform() if 'randomColor' not in self.postfix else get_composed_transform(aug_dict={
+                "RandomHorizontalFlip":{
+                    "prob":0.5,
+                },
+                "RandomVerticalFlip":{
+                    "prob": 0.5,
+                },
+                "Resize": {
+                    "img_size":[300, 300],
+                },
+                "RandomCrop":{
+                    "img_size":[256, 256],
+                },
+                "RandomColor": {
+
+                }
+            })
+            testing_transforms = None 
+            # testing_transforms = get_composed_transform({"Resize": {"img_size":[128, 128]}})
+            # testing_transforms = None if self.mode == 'test' else get_composed_transform({"Resize": {"img_size":[128, 128]}})
             # if self.valid_ratio:
             #     split_size = int((1 - args.valid_ratio) * train_size)
             #     print('Training size: {}, validation size: {}'.format(split_size, train_size - split_size))
@@ -106,8 +125,6 @@ class STCGAN():
         else:
             assert(False)
         
-        
-
         # model
         self.G1 = networks.define_G(input_nc=3, output_nc=1, ngf=64, netG='unet_256', gpu_ids=[args.gpu_id])
         self.G2 = networks.define_G(input_nc=4, output_nc=3, ngf=64, netG='unet_256', gpu_ids=[args.gpu_id])
@@ -119,8 +136,6 @@ class STCGAN():
 
         self.l1_loss = nn.L1Loss().to(self.device)
         self.gan_loss = networks.GANLoss(use_lsgan=False).to(self.device)
-        self.train_writer = SummaryWriter(os.path.join(self.path.log_dir, 'train'))
-        self.test_writer = SummaryWriter(os.path.join(self.path.log_dir, 'test'))
         
         # self.logger.info('-' * 10 + ' Networks Architecture ' + '-' * 10)
         # utils.print_netowrk(self.G1)
@@ -131,7 +146,9 @@ class STCGAN():
 
 
     def train(self):
-          
+        self.train_writer = SummaryWriter(os.path.join(self.path.log_dir, 'train'))
+        self.test_writer = SummaryWriter(os.path.join(self.path.log_dir, 'test'))
+        
         self.D1.train()
         self.D2.train()
         self.logger.info('Start training...')
@@ -170,9 +187,9 @@ class STCGAN():
                     # hist = {}.update(testLoss)
                     self.record_hist(testLoss, self.test_writer, total_steps + 1)
 
-                if (total_steps + 1) % self.model_step == 0 or (epoch+1) == self.epoch:
+                if (total_steps + 1) % self.model_step == 0:
                     self.visualize(total_steps + 1)
-                    self.save('latest_{:06d}'.format(total_steps + 1))
+                    self.save('latest_{:07d}'.format(total_steps + 1))
                 total_steps += 1
         self.train_writer.close()
         self.test_writer.close()
@@ -182,6 +199,7 @@ class STCGAN():
             self.G1.eval()
             self.G2.eval()
             loss = {}
+            batch_num = len(self.test_loader)
             for i, (S_img, N_img, M_img) in enumerate(self.test_loader):
                 testPair = self.set_input(S_img, N_img, M_img)
                 testPair = self.forward(testPair)
@@ -205,10 +223,11 @@ class STCGAN():
                             fp = os.path.join(output_dir, result_name)
                             img = cv2.cvtColor(np.transpose((output_img.cpu().numpy()[j, :, :, :] * 255).astype(np.uint8), [1, 2, 0]), cv2.COLOR_RGB2BGR)
                             cv2.imwrite(fp, img) 
-            loss = {k:v / self.batch_size_test for k, v in loss.items()}
+            loss = {k:v / batch_num for k, v in loss.items()}
+            # print(loss)
             if save:
                 eval_dir_func(self.path.test_shadow_free_dir, self.path.result_shadow_free_dir, self.path.test_mask_dir, MetricType.MSE | MetricType.RMSE | MetricType.SSIM)
-
+            
         return loss
     def visualize(self, total_steps):
         for i, (S_img, N_img, M_img) in enumerate(self.test_loader):
@@ -450,16 +469,16 @@ class STCGAN():
     def calculate_G_loss(self, pair):
 
         G1_l1_loss = self.l1_loss(pair['M_fake'], pair['M_real'])
-        G2_l1_loss = self.l1_loss(pair['N_fake'], pair['N_real']) * self.lambda1
+        G2_l1_loss = self.l1_loss(pair['N_fake'], pair['N_real'])
 
         D1_fake = self.D1(pair['SM_fake'])
         D2_fake = self.D2(pair['SNM_fake'])
 
-        G1_gan_loss = self.gan_loss(D1_fake, True) * self.lambda2
-        G2_gan_loss = self.gan_loss(D2_fake, True) * self.lambda3
+        G1_gan_loss = self.gan_loss(D1_fake, True)
+        G2_gan_loss = self.gan_loss(D2_fake, True)
 
-        G1_loss = G1_l1_loss + G1_gan_loss
-        G2_loss = G2_l1_loss + G2_gan_loss
+        G1_loss = G1_l1_loss + G1_gan_loss * self.lambda2
+        G2_loss = G2_l1_loss * self.lambda1 + G2_gan_loss * self.lambda3
 
         G_loss = G1_loss + G2_loss
 
