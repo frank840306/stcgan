@@ -305,7 +305,6 @@ class STCGAN():
     #         self.G2.eval()
     #         loss = {}
     #         for i, (S_img, N_img, M_img) in enumerate(self.test_loader):
-./run.sh --mode train --gpu_id 0 --epochs 2000 --root_dir /media/yslin/SSD_DATA/research/stcgan/ --batch_size 8 --dataset_name ISTD --batch_size_test 5
 
     # def test(self): 
     #     with torch.no_grad():
