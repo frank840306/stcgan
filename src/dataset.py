@@ -243,7 +243,7 @@ class RandomColor(object):
         
         shadow_img = self.white_balance(shadow_img, m)
         shadow_free_img = self.white_balance(shadow_free_img, m)
-
+        
         return shadow_img, shadow_free_img, mask_img
 
 

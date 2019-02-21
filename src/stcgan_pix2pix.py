@@ -221,7 +221,8 @@ class STCGAN():
                         
                         for output_dir, output_img in zip(output_dirs, output_imgs):
                             fp = os.path.join(output_dir, result_name)
-                            img = cv2.cvtColor(np.transpose((output_img.cpu().numpy()[j, :, :, :] * 255).astype(np.uint8), [1, 2, 0]), cv2.COLOR_RGB2BGR)
+                            img = np.transpose((output_img.cpu().numpy()[j, :, :, :] * 255).astype(np.uint8), [1, 2, 0])
+                            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR) if len(img.shape) == 3 else img
                             cv2.imwrite(fp, img) 
             loss = {k:v / batch_num for k, v in loss.items()}
             # print(loss)
@@ -304,7 +305,7 @@ class STCGAN():
     #         self.G2.eval()
     #         loss = {}
     #         for i, (S_img, N_img, M_img) in enumerate(self.test_loader):
-
+./run.sh --mode train --gpu_id 0 --epochs 2000 --root_dir /media/yslin/SSD_DATA/research/stcgan/ --batch_size 8 --dataset_name ISTD --batch_size_test 5
 
     # def test(self): 
     #     with torch.no_grad():
