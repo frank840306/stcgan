@@ -2,9 +2,12 @@ import os
 import cv2
 import random
 import numpy as np
+import imutils
 import torch
+
 from torch.utils.data import Dataset
 from scipy.interpolate import UnivariateSpline
+from skimage import transform
 
 
 from logHandler import get_logger
@@ -69,6 +72,10 @@ def get_composed_transform(aug_dict=None):
             "RandomVerticalFlip":{
                 "prob": 0.5,
             },
+            'RandomRotation':{
+                "min_degree": -60,
+                "max_degree": 60,
+            },
             "Resize": {
                 "img_size":[300, 300],
             },
@@ -81,7 +88,9 @@ def get_composed_transform(aug_dict=None):
         }
     get_logger(__name__).info('Augmentation method: {}'.format(', '.join(aug_dict.keys())))
     for aug_key, aug_param in sorted(aug_dict.items(), reverse=True):
+        # print(aug_key)
         augmentations.append(key2aug[aug_key](**aug_param))
+    # print('====\n\n')
     return Compose(augmentations)
 
 
@@ -94,12 +103,21 @@ class Compose(object):
         for aug in self.augmentations:
             shadow_img, shadow_free_img, mask_img = aug(shadow_img, shadow_free_img, mask_img)
         
+        # import matplotlib.pyplot as plt
+        # plt.figure('S')
+        # plt.imshow(shadow_img)
+        # plt.figure('N')
+        # plt.imshow(shadow_free_img)
+        # plt.figure('M')
+        # plt.imshow(mask_img)
+        # plt.show()
         return shadow_img, shadow_free_img, mask_img
     
 class Resize(object):
     def __init__(self, img_size):
         self.height, self.width = img_size
     def __call__(self, shadow_img, shadow_free_img, mask_img):
+        # print('resize')
         assert shadow_img.shape[0] == shadow_free_img.shape[0]
         assert shadow_img.shape[1] == shadow_free_img.shape[1]
         assert shadow_img.shape[0] == mask_img.shape[0]
@@ -116,6 +134,7 @@ class RandomHorizontalFlip(object):
     def __init__(self, prob):
         self.prob = prob
     def __call__(self, shadow_img, shadow_free_img, mask_img):
+        # print('horizon')
         if random.random() >= self.prob:
             
             assert shadow_img.shape[0] == shadow_free_img.shape[0]
@@ -135,6 +154,7 @@ class RandomVerticalFlip(object):
     def __init__(self, prob):
         self.prob = prob
     def __call__(self, shadow_img, shadow_free_img, mask_img):
+        # print('vertical')
         if random.random() >= self.prob:
             
             assert shadow_img.shape[0] == shadow_free_img.shape[0]
@@ -150,11 +170,37 @@ class RandomVerticalFlip(object):
         
         return shadow_img, shadow_free_img, mask_img
 
+class RandomRotation(object):
+    def __init__(self, min_degree, max_degree):
+        self.min_degree = min_degree
+        self.max_degree = max_degree
+
+    def __call__(self, shadow_img, shadow_free_img, mask_img):
+        # print('rotate')
+        assert shadow_img.shape[0] == shadow_free_img.shape[0]
+        assert shadow_img.shape[1] == shadow_free_img.shape[1]
+        assert shadow_img.shape[0] == mask_img.shape[0]
+        assert shadow_img.shape[1] == mask_img.shape[1]
+
+        rotate_degree = random.uniform(self.min_degree, self.max_degree)
+        shadow_img = imutils.rotate(shadow_img, rotate_degree)
+        shadow_free_img = imutils.rotate(shadow_free_img, rotate_degree)
+        mask_img = imutils.rotate(mask_img, rotate_degree)
+        # shadow_img = transform.rotate(shadow_img, rotate_degree).copy()
+        # shadow_free_img = transform.rotate(shadow_free_img, rotate_degree).copy()
+        # mask_img = transform.rotate(mask_img, rotate_degree).copy()
+
+        # print(shadow_img.shape, shadow_free_img.shape, mask_img.shape)
+    
+        return shadow_img, shadow_free_img, mask_img
+        
+
 class RandomCrop(object):
     def __init__(self, img_size):
         self.height, self.width = img_size
 
     def __call__(self, shadow_img, shadow_free_img, mask_img):
+        # print('crop')
         # HWC HWC HW
         assert shadow_img.shape[0] == shadow_free_img.shape[0]
         assert shadow_img.shape[1] == shadow_free_img.shape[1]
@@ -250,6 +296,7 @@ class RandomColor(object):
 key2aug = {
     'RandomHorizontalFlip': RandomHorizontalFlip,
     'RandomVerticalFlip': RandomVerticalFlip,
+    'RandomRotation': RandomRotation,
     'Resize': Resize,
     'RandomCrop': RandomCrop,
     'RandomColor': RandomColor,

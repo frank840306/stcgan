@@ -173,7 +173,7 @@ if __name__ == '__main__':
     logger.info('[ Eval.py ] argv: {}'.format(sys.argv))
     assert(len(sys.argv) == 3)
     assert(sys.argv[1].startswith('ISTD') or sys.argv[1].startswith('DSRD'))
-    root_dir = os.path.join('/media', 'yslin', 'SSD_DATA', 'research', 'stcgan', 'processed_dataset', sys.argv[1], 'test')
+    root_dir = os.path.join('/media', 'yslin', 'SSD_DATA', 'research', 'processed_dataset', sys.argv[1], 'test')
     true_dir = os.path.join(root_dir, 'non_shadow')
     mask_dir = os.path.join(root_dir, 'mask')
     test_dir = sys.argv[2]

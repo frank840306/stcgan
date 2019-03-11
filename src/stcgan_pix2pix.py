@@ -85,6 +85,10 @@ class STCGAN():
                 "RandomVerticalFlip":{
                     "prob": 0.5,
                 },
+                "RandomRotation":{
+                    "min_degree": -60,
+                    "max_degree": 60,
+                },
                 "Resize": {
                     "img_size":[300, 300],
                 },
@@ -110,7 +114,7 @@ class STCGAN():
             #     self.logger.info('Training size: {} Validation size: {}'.format(split_size, train_size - split_size))
             # else:
             train_dataset = ShadowRemovalDataset(path, 'training', train_img_list, training_transforms)
-            self.train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=8)
+            self.train_loader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=4)
         # elif self.mode == 'test':
             # test_size = len(os.listdir(path.test_shadow_dir))
             # test_img_list = list(range(test_size))
@@ -296,7 +300,7 @@ class STCGAN():
     #         v2_loss = np.mean(v2_loss)
     #         self.v_loss = v1_loss + v2_loss
     #         self.valid_hist['mask_loss'].append(v1_loss)
-    #         self.valid_hist['shadow_free_loss'].append(v2_loss)
+    #         self.valid_hist['shadow_free_loss'].append(v2_loss
     #         self.valid_hist['loss'].append(self.v_loss)
     #         self.logger.info('[ Validation ] Iteration: {:3d}, loss: {:.3f} [mask: {:.3f}] [non-shadow: {:.3f}]'.format(steps, self.v_loss, v1_loss, v2_loss))
     # def record_img(self):

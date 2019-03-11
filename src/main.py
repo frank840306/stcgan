@@ -1,6 +1,8 @@
 import os
 import glob
+import time
 import argparse
+import numpy as np
 
 from pathHandler import PathHandler
 from logHandler import get_logger, set_logger
@@ -48,7 +50,10 @@ if __name__ == "__main__":
     
     net = STCGAN(args, path)
     if args.load_model:
+        start_time = time.time()
         net.load()
+        end_time = time.time()
+        print('Time of loading model: {} sec'.format(start_time - end_time))
 
     if args.mode == 'train':
         net.train()
@@ -56,9 +61,14 @@ if __name__ == "__main__":
         net.test()
     elif args.mode == 'infer':
         exts = ['png', 'PNG', 'jpg', 'JPG']
+        exec_times = []
         for fname in sorted(os.listdir('demo')):
             for ext in exts:
                 if fname.endswith(ext):
+                    start_time = time.time()
                     net.infer(os.path.join('demo', fname))
+                    end_time = time.time()
+                    exec_times.append(end_time - start_time)
+        print('Average time of predicting single image: {} sec'.format(np.mean(exec_times)))
     else:
         logger.info('Unexpected mode: {}'.format(args.mode))
