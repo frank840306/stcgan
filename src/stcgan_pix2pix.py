@@ -130,8 +130,8 @@ class STCGAN():
             assert(False)
         
         # model
-        self.G1 = networks.define_G(input_nc=3, output_nc=1, ngf=64, netG='unet_256', gpu_ids=[args.gpu_id])
-        self.G2 = networks.define_G(input_nc=4, output_nc=3, ngf=64, netG='unet_256', gpu_ids=[args.gpu_id])
+        self.G1 = networks.define_G(input_nc=3, output_nc=1, ngf=64, netG='resnet_9blocks', gpu_ids=[args.gpu_id])
+        self.G2 = networks.define_G(input_nc=4, output_nc=3, ngf=64, netG='resnet_9blocks', gpu_ids=[args.gpu_id])
         self.D1 = networks.define_D(input_nc=3+1, ndf=64, netD='pixel', use_sigmoid=True, gpu_ids=[args.gpu_id])
         self.D2 = networks.define_D(input_nc=3+3+1, ndf=64, netD='pixel', use_sigmoid=True, gpu_ids=[args.gpu_id])
 
