@@ -61,6 +61,7 @@ class ShadowRemovalDataset(Dataset):
             transforms.ToTensor(),
             transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
         ])
+        print(shadow_img.shape, shadow_free_img.shape, mask_img.shape)
         shadow_img = tfs(shadow_img)
         shadow_free_img = tfs(shadow_free_img)
         mask_img = tfs(mask_img)
