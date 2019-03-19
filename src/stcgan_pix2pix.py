@@ -225,7 +225,7 @@ class STCGAN():
                         
                         for output_dir, output_img in zip(output_dirs, output_imgs):
                             fp = os.path.join(output_dir, result_name)
-                            img = np.transpose((output_img.cpu().numpy()[j, :, :, :] * 255).astype(np.uint8), [1, 2, 0])
+                            img = np.transpose(((output_img.cpu().numpy()[j, :, :, :] + 1) / 2 * 255).astype(np.uint8), [1, 2, 0])
                             img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR) if len(img.shape) == 3 else img
                             cv2.imwrite(fp, img) 
             loss = {k:v / batch_num for k, v in loss.items()}
@@ -345,19 +345,19 @@ class STCGAN():
             h, w, c = img.shape
             img = cv2.resize(img, (w - w % 32, h - h % 32))
             img = np.transpose(img, (2, 0, 1))
-            img = img.astype(np.float32) / 255
+            img = (img.astype(np.float32) / 255 - 0.5) / 0.5
             img = img[np.newaxis, :, :, :]
             img = torch.from_numpy(img)
             img = torch.autograd.Variable(img).cuda()
             out_M = self.G1(img)
             out_N = self.G2(torch.cat((img, out_M), 1))[-1]
             
-            out_M = out_M.cpu().numpy() * 255
+            out_M = (out_M.cpu().numpy() + 1) / 2 * 255
             out_M = out_M.astype(np.uint8)
             out_M = out_M[-1].transpose((1, 2, 0))
 
             
-            out_N = out_N.cpu().numpy() * 255
+            out_N = (out_N.cpu().numpy() + 1) / 2 * 255
             out_N = out_N.astype(np.uint8)
             out_N = out_N.transpose((1, 2, 0))
 

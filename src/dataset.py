@@ -6,8 +6,10 @@ import imutils
 import torch
 
 from torch.utils.data import Dataset
+from torchvision import transforms
 from scipy.interpolate import UnivariateSpline
 from skimage import transform
+
 
 
 from logHandler import get_logger
@@ -51,11 +53,22 @@ class ShadowRemovalDataset(Dataset):
         if self.transform:
             shadow_img, shadow_free_img, mask_img = self.transform(shadow_img, shadow_free_img, mask_img)
         
-        shadow_img = np.transpose(shadow_img, (2, 0, 1))
-        shadow_free_img = np.transpose(shadow_free_img, (2, 0, 1))
-        mask_img = mask_img[np.newaxis, :, :]
+        shadow_img = np.transpose(shadow_img, (2, 0, 1)).astype(np.float32)
+        shadow_free_img = np.transpose(shadow_free_img, (2, 0, 1)).astype(np.float32)
+        mask_img = mask_img[np.newaxis, :, :].astype(np.float32)
+        
+        tfs = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize(mean=(0.5, 0.5, 0.5), std=0.5, 0.5, 0.5)
+        ])
+        shadow_img = tfs(shadow_img)
+        shadow_free_img = tfs(shadow_free_img)
+        mask_img = tfs(mask_img)
+        
+        return shadow_img, shadow_free_img, mask_img
+
         # CHW
-        return torch.from_numpy(shadow_img).float()/255, torch.from_numpy(shadow_free_img).float()/255, torch.from_numpy(mask_img).float()/255
+        # return torch.from_numpy(shadow_img).float()/255, torch.from_numpy(shadow_free_img).float()/255, torch.from_numpy(mask_img).float()/255
 
     def __len__(self):
         return len(self.img_list)

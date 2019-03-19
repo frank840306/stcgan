@@ -107,45 +107,55 @@ def main():
     #         'mask\n(ground truth)', 
     #         'ACCV2016', 
     #         # 'ST-CGAN\n(70%)', 
-    #         'ST-CGAN\nDSRD extend'],
+    #         'ST-CGAN',
+    #         'deRaindrop',
+    #     ],
     #     dirs=[
-    #         '/media/yslin/SSD_DATA/research/stcgan/processed_dataset/DSRD_extend/test/shadow',
-    #         '/media/yslin/SSD_DATA/research/stcgan/processed_dataset/DSRD_extend/test/non_shadow',
-    #         '/media/yslin/SSD_DATA/research/stcgan/processed_dataset/DSRD_extend/test/mask',
-    #         '/media/yslin/SSD_DATA/research/stcgan/processed_dataset/DSRD_extend/result/ACCV2016/',
+    #         '/media/yslin/SSD_DATA/research/processed_dataset/DSRD_aligned/test/shadow',
+    #         '/media/yslin/SSD_DATA/research/processed_dataset/DSRD_aligned/test/non_shadow',
+    #         '/media/yslin/SSD_DATA/research/processed_dataset/DSRD_aligned/test/mask',
+    #         '/media/yslin/SSD_DATA/research/processed_dataset/DSRD_aligned/result/ACCV2016/',
     #         # '/media/yslin/SSD_DATA/research/stcgan/task/stcgan_lrG_0.001_lrD_0.001/DSRD_70/result/non_shadow',
-    #         '/media/yslin/SSD_DATA/research/stcgan/task/stcgan_lrG_0.001_lrD_0.001/DSRD_extend/result/non_shadow',
+    #         '/media/yslin/SSD_DATA/research/stcgan/task/stcgan_lrG_0.001_lrD_0.001_randomRotation/DSRD_aligned/result/non_shadow',
+    #         '/media/yslin/SSD_DATA/research/processed_dataset/DSRD_aligned/result/deRaindrop_85000/non_shadow',
     #     ],
     #     img_list=[
-    #         'S022T003N00003.png',
-    #         'S026T004N00007.png',
-    #         'S029T006N00007.png',
-    #         'S030T005N00009.png',
+    #         # 'S006T001N00014.png',
+    #         'S010T001N00015.png',
+    #         'S018T001N00006.png',
+    #         'S026T004N00017.png',
+    #         'S029T006N00003.png',
     #     ],
-    #     kwargs=[{}, {}, {'cmap': 'Greys_r'}, {}, {}]
+    #     kwargs=[{}, {}, {'cmap': 'Greys_r'}, {}, {}, {}]
     # )
     # compare between gt and st-cgan
+
     display(
         titles=[
             'shadow', 
             'non shadow\n(ground truth)', 
-            'non shadow\n(ST-CGAN & DSRD extend)', 
+            'non shadow\n(ST-CGAN)',
+            'non shadow\n(deRaindrop)', 
             'mask\n(ground truth)', 
-            'mask\n(ST-CGAN & DSRD extend)'],
+            'mask\n(ST-CGAN)',
+            'mask\n(deRaindrop)'
+        ],
         dirs=[
-            '/media/yslin/SSD_DATA/research/stcgan/processed_dataset/DSRD_extend/test/shadow',
-            '/media/yslin/SSD_DATA/research/stcgan/processed_dataset/DSRD_extend/test/non_shadow',
-            '/media/yslin/SSD_DATA/research/stcgan/task/stcgan_lrG_0.001_lrD_0.001/DSRD_extend/result/non_shadow',
-            '/media/yslin/SSD_DATA/research/stcgan/processed_dataset/DSRD_extend/test/mask',
-            '/media/yslin/SSD_DATA/research/stcgan/task/stcgan_lrG_0.001_lrD_0.001/DSRD_extend/result/mask',
+            '/media/yslin/SSD_DATA/research/processed_dataset/DSRD_aligned/test/shadow',
+            '/media/yslin/SSD_DATA/research/processed_dataset/DSRD_aligned/test/non_shadow',
+            '/media/yslin/SSD_DATA/research/stcgan/task/stcgan_lrG_0.001_lrD_0.001/DSRD_aligned/result/non_shadow',
+            '/media/yslin/SSD_DATA/research/processed_dataset/DSRD_aligned/result/deRaindrop_85000/non_shadow',
+            '/media/yslin/SSD_DATA/research/processed_dataset/DSRD_aligned/test/mask',
+            '/media/yslin/SSD_DATA/research/stcgan/task/stcgan_lrG_0.001_lrD_0.001/DSRD_aligned/result/mask',
+            '/media/yslin/SSD_DATA/research/processed_dataset/DSRD_aligned/result/deRaindrop_85000/mask',
         ],
         img_list=[
-            'S021T003N00007.png',
-            'S021T003N00008.png',
-            'S027T006N00004.png',
-            'S027T006N00018.png',
+            'S018T001N00003.png',
+            'S022T003N00013.png',
+            'S026T004N00004.png',
+            'S029T006N00013.png',
         ],
-        kwargs=[{}, {}, {}, {'cmap': 'Greys_r'}, {'cmap': 'Greys_r'}]
+        kwargs=[{}, {}, {}, {}, {'cmap': 'Greys_r'}, {'cmap': 'Greys_r'}, {'cmap': 'Greys_r'}]
     )
     
 
