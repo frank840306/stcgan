@@ -239,9 +239,9 @@ class STCGAN():
             if i == 0:
                 testPair = self.set_input(S_img, N_img, M_img)
                 testPair = self.forward(testPair)
-                x = vutils.make_grid(testPair['N_fake'], normalize=True, scale_each=True, nrow=4)
+                x = vutils.make_grid((testPair['N_fake']+1) / 2, normalize=True, scale_each=True, nrow=4)
                 self.test_writer.add_image('Non-shadow', x, total_steps)
-                x = vutils.make_grid(testPair['M_fake'], normalize=True, scale_each=True, nrow=4)
+                x = vutils.make_grid((testPair['M_fake']+1) / 2, normalize=True, scale_each=True, nrow=4)
                 self.test_writer.add_image('Mask', x, total_steps)
             else:
                 pass
