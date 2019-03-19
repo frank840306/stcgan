@@ -53,19 +53,19 @@ class ShadowRemovalDataset(Dataset):
         if self.transform:
             shadow_img, shadow_free_img, mask_img = self.transform(shadow_img, shadow_free_img, mask_img)
         
-        shadow_img = np.transpose(shadow_img, (2, 0, 1)).astype(np.float32)
-        shadow_free_img = np.transpose(shadow_free_img, (2, 0, 1)).astype(np.float32)
-        mask_img = mask_img[np.newaxis, :, :].astype(np.float32)
+        # shadow_img = np.transpose(shadow_img, (2, 0, 1)).astype(np.float32)
+        # shadow_free_img = np.transpose(shadow_free_img, (2, 0, 1)).astype(np.float32)
+        mask_img = mask_img[:, :, np.newaxis]
         
         tfs = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
         ])
-        print(shadow_img.shape, shadow_free_img.shape, mask_img.shape)
+        #print(shadow_img.shape, shadow_free_img.shape, mask_img.shape)
         shadow_img = tfs(shadow_img)
         shadow_free_img = tfs(shadow_free_img)
         mask_img = tfs(mask_img)
-
+        #print(shadow_img.size())
         return shadow_img, shadow_free_img, mask_img
 
         # CHW
