@@ -422,7 +422,7 @@ class STCGAN():
 
         D1_real = self.D1(pair['SM_real'])
         D1_fake = self.D1(pair['SM_fake'].detach())
-        print('D1_real shape: {}\n-------------------'.format(D1_real.size()))
+        # print('D1_real shape: {}\n-------------------'.format(D1_real.size()))
     
 
         D1_real_loss = self.gan_loss(D1_real, True) * 0.5
