@@ -132,8 +132,8 @@ class STCGAN():
         # model
         self.G1 = networks.define_G(input_nc=3, output_nc=1, ngf=64, netG='resnet_6blocks', gpu_ids=[args.gpu_id])
         self.G2 = networks.define_G(input_nc=4, output_nc=3, ngf=64, netG='resnet_6blocks', gpu_ids=[args.gpu_id])
-        self.D1 = networks.define_D(input_nc=3+1, ndf=64, netD='pixel', use_sigmoid=True, gpu_ids=[args.gpu_id])
-        self.D2 = networks.define_D(input_nc=3+3+1, ndf=64, netD='pixel', use_sigmoid=True, gpu_ids=[args.gpu_id])
+        self.D1 = networks.define_D(input_nc=3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
+        self.D2 = networks.define_D(input_nc=3+3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
 
         self.G_opt = optim.Adam(list(self.G1.parameters()) + list(self.G2.parameters()), lr=args.lrG, betas=(args.beta1, args.beta2))
         self.D_opt = optim.Adam(list(self.D1.parameters()) + list(self.D2.parameters()), lr=args.lrD, betas=(args.beta1, args.beta2))
@@ -422,6 +422,8 @@ class STCGAN():
 
         D1_real = self.D1(pair['SM_real'])
         D1_fake = self.D1(pair['SM_fake'].detach())
+        print('D1_real shape: {}\n-------------------'.format(D1_real.size()))
+    
 
         D1_real_loss = self.gan_loss(D1_real, True) * 0.5
         D1_fake_loss = self.gan_loss(D1_fake, False) * 0.5
