@@ -165,36 +165,39 @@ class STCGAN():
             self.G1.train()
             self.G2.train()
             # self.logger.info('epoch {}'.format(epoch))
-            for i, (S_img, N_img, M_img) in enumerate(self.train_loader):
-                # self.logger.info('Iteration: {}'.format(i))
-                # A_real(shadow, S_img), B_real(shadow_free, N_img), C_real(mask, M_img)
-                trainPair = self.set_input(S_img, N_img, M_img)
-                # self.A_real = shadow_img.to(self.device)
-                # self.B_real = shadow_free_img.to(self.device)
-                # self.C_real = mask_img.to(self.device)
+            with trange(len(self.train_loader)) as t:
+                for i, (S_img, N_img, M_img) in enumerate(self.train_loader):
+                    # self.logger.info('Iteration: {}'.format(i))
+                    # A_real(shadow, S_img), B_real(shadow_free, N_img), C_real(mask, M_img)
+                    trainPair = self.set_input(S_img, N_img, M_img)
+                    # self.A_real = shadow_img.to(self.device)
+                    # self.B_real = shadow_free_img.to(self.device)
+                    # self.C_real = mask_img.to(self.device)
 
-                trainPair, trainLoss = self.optimize_parameter(trainPair)
-                sys.stdout.write('[ Training ] Epoch: {:4d}/{:4d} batch: {:3d}/{:3d} Loss: {:.4f} [G: {:.4f}] [D: {:.4f}] [G1: {:.4f}] [G2: {:.4f}] [D1: {:.4f}] [D2: {:.4f}]\r'.format(
-                    epoch+1, self.epoch, i+1, batch_num, trainLoss['G_loss'] + trainLoss['D_loss'], trainLoss['G_loss'], trainLoss['D_loss'], trainLoss['G1_loss'], trainLoss['G2_loss'], trainLoss['D1_loss'], trainLoss['D2_loss']
-                ))
-                # self.logger.info('[ Training ] Epoch: {:3d} batch: {:3d} Loss: {:.3f} [G: {:.3f}] [D: {:.3f}] [G1: {:.3f}] [G2: {:.3f}] [D1: {:.3f}] [D2: {:.3f}]'.format(
-                #     epoch, i+1, trainPair['G_loss'] + trainPair['D_loss'], trainPair['G_loss'], trainPair['D_loss'], trainPair['G1_loss'], trainPair['G2_loss'], trainPair['D1_loss'], trainPair['D2_loss']
-                # ))
-                if (total_steps + 1) % self.hist_step == 0:
-                    # hist = {}
-                    # hist.update(trainLoss)
-                    # print(trainLoss)
-                    self.record_hist(trainLoss, self.train_writer, total_steps + 1)
-                
-                if (total_steps + 1) % self.test_step == 0:
-                    testLoss = self.test(save=False)
-                    # hist = {}.update(testLoss)
-                    self.record_hist(testLoss, self.test_writer, total_steps + 1)
+                    trainPair, trainLoss = self.optimize_parameter(trainPair)
+                    # sys.stdout.write('[ Training ] Epoch: {:4d}/{:4d} batch: {:3d}/{:3d} Loss: {:.4f} [G: {:.4f}] [D: {:.4f}] [G1: {:.4f}] [G2: {:.4f}] [D1: {:.4f}] [D2: {:.4f}]\r'.format(
+                    #     epoch+1, self.epoch, i+1, batch_num, trainLoss['G_loss'] + trainLoss['D_loss'], trainLoss['G_loss'], trainLoss['D_loss'], trainLoss['G1_loss'], trainLoss['G2_loss'], trainLoss['D1_loss'], trainLoss['D2_loss']
+                    # ))
+                    # self.logger.info('[ Training ] Epoch: {:3d} batch: {:3d} Loss: {:.3f} [G: {:.3f}] [D: {:.3f}] [G1: {:.3f}] [G2: {:.3f}] [D1: {:.3f}] [D2: {:.3f}]'.format(
+                    #     epoch, i+1, trainPair['G_loss'] + trainPair['D_loss'], trainPair['G_loss'], trainPair['D_loss'], trainPair['G1_loss'], trainPair['G2_loss'], trainPair['D1_loss'], trainPair['D2_loss']
+                    # ))
+                    if (total_steps + 1) % self.hist_step == 0:
+                        # hist = {}
+                        # hist.update(trainLoss)
+                        # print(trainLoss)
+                        self.record_hist(trainLoss, self.train_writer, total_steps + 1)
+                    
+                    if (total_steps + 1) % self.test_step == 0:
+                        testLoss = self.test(save=False)
+                        # hist = {}.update(testLoss)
+                        self.record_hist(testLoss, self.test_writer, total_steps + 1)
 
-                if (total_steps + 1) % self.model_step == 0:
-                    self.visualize(total_steps + 1)
-                    self.save('latest_{:07d}'.format(total_steps + 1))
-                total_steps += 1
+                    if (total_steps + 1) % self.model_step == 0:
+                        self.visualize(total_steps + 1)
+                        self.save('latest_{:07d}'.format(total_steps + 1))
+                    total_steps += 1
+                    t.set_postfix(G1_loss=trainLoss['G1_loss'], G2_loss=trainLoss['G2_loss'], D1_loss=trainLoss['D1_loss'], D2_loss=trainLoss['D2_loss'])
+                    t.update()
         self.train_writer.close()
         self.test_writer.close()
 
