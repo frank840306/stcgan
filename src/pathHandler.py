@@ -43,9 +43,9 @@ class PathHandler():
         self.result_shadow_dir = os.path.join(self.result_dir, 'shadow')
         self.result_shadow_free_dir = os.path.join(self.result_dir, 'non_shadow')
         self.result_mask_dir = os.path.join(self.result_dir, 'mask')
+        self.result_resnet_dir = os.path.join(self.result_dir, 'resnet_non_shadow')
         
-        
-        dir_list = [self.mdl_dir, self.log_dir, self.valid_dir, self.valid_mask_dir, self.valid_shadow_free_dir, self.valid_gt_mask_dir, self.valid_gt_shadow_dir, self.valid_gt_shadow_free_dir, self.result_dir, self.result_shadow_dir, self.result_shadow_free_dir, self.result_mask_dir] 
+        dir_list = [self.mdl_dir, self.log_dir, self.valid_dir, self.valid_mask_dir, self.valid_shadow_free_dir, self.valid_gt_mask_dir, self.valid_gt_shadow_dir, self.valid_gt_shadow_free_dir, self.result_dir, self.result_shadow_dir, self.result_shadow_free_dir, self.result_mask_dir, self.result_resnet_dir] 
         for d in dir_list:
             if not os.path.exists(d):
                 os.makedirs(d)

@@ -83,6 +83,8 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         net = UnetGenerator(input_nc, output_nc, 7, ngf, norm_layer=norm_layer, use_dropout=use_dropout)
     elif netG == 'unet_256':
         net = UnetGenerator(input_nc, output_nc, 5, ngf, norm_layer=norm_layer, use_dropout=use_dropout)
+    elif netG == 'resnet_accv':
+        net = ResnetGeneratorAccv(input_nc, output_nc, ngf, norm_layer=norm_layer, use_dropout=use_dropout, n_blocks=6)
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
     return init_net(net, init_type, init_gain, gpu_ids)
@@ -134,6 +136,25 @@ class GANLoss(nn.Module):
         target_tensor = self.get_target_tensor(input, target_is_real)
         return self.loss(input, target_tensor)
 
+class ResnetGeneratorAccv(nn.Module):
+    def __init__(self, input_nc, output_nc, ngf=64, norm_layer=nn.BatchNorm2d, use_dropout=False, n_blocks=6, padding_type='reflect'):
+        super(ResnetGeneratorAccv, self).__init__()
+        self.resnet6 = ResnetGenerator(input_nc, output_nc, ngf, norm_layer=norm_layer, use_dropout=use_dropout, n_blocks=n_blocks)
+        self.fusion_block = self.build_fusion_block(output_nc+3, 3, norm_layer=norm_layer, use_dropout=use_dropout, use_bias=norm_layer.func==nn.InstanceNorm2d, padding_type=padding_type)
+        
+    def build_fusion_block(self, input_nc, output_nc, norm_layer, use_dropout, use_bias, padding_type):
+        fusion_block = [
+            ResnetBlock(input_nc, padding_type=padding_type, norm_layer=norm_layer, use_dropout=use_dropout, use_bias=norm_layer.func==nn.InstanceNorm2d),
+            nn.ReflectionPad2d(1),
+            nn.Conv2d(input_nc, output_nc, kernel_size=3, padding=0, bias=use_bias),
+            norm_layer(output_nc)
+        ]
+        return nn.Sequential(*fusion_block)
+
+    def forward(self, x1, x2):
+        x1 = self.resnet6(x1)
+        out = self.fusion_block(torch.cat((x1, x2), 1))
+        return x1, out        
 
 # Defines the generator that consists of Resnet blocks between a few
 # downsampling/upsampling operations.

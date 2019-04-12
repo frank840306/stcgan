@@ -8,6 +8,7 @@ from pathHandler import PathHandler
 from logHandler import get_logger, set_logger
 
 from stcgan_pix2pix import STCGAN
+from stcgan_accv16 import STCGAN_ACCV16
 
 def get_args():
 
@@ -34,6 +35,7 @@ def get_args():
     parser.add_argument('--hist_step', default=20, type=int, help='every # steps record training statistic')
     parser.add_argument('--test_step', default=200, type=int, help='every # steps to validation')
     parser.add_argument('--model_step', default=2000, type=int, help='every # steps save model')
+    parser.add_argument('--start_step', default=0, type=int, help='start step')
     parser.add_argument('--model_name', default='latest', type=str, help='load the model, latest, besr or name')
     parser.add_argument('--dataset_name', default='ISTD', type=str, help='dataset name, ISTD or DSRD')
     return parser.parse_args()
@@ -49,7 +51,11 @@ if __name__ == "__main__":
     logger.info(args)
     
     # start_time = time.time()
-    net = STCGAN(args, path)
+    if args.task_name == 'stcgan':
+        net = STCGAN(args, path)
+    elif args.task_name == 'stcgan_accv16':
+        net = STCGAN_ACCV16(args, path)
+
     # end_time = time.time()
     # print('Time of initializing model: {} sec'.format(end_time - start_time))
 
