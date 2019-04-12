@@ -156,7 +156,7 @@ class STCGAN():
         
         self.D1.train()
         self.D2.train()
-        self.logger.info('Start training...')
+        self.logger.info('Start training...from {} iteration'.format(self.start_step))
         start_time = time.time()
         
         batch_num = len(self.train_loader)
