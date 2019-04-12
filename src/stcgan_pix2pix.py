@@ -376,7 +376,7 @@ class STCGAN():
         # TODO: add require grad
         self.D_opt.zero_grad()
         loss.update(self.calculate_D_loss(pair))
-        print('D_loss: {}'.format(loss['D_loss']))
+        # print('D_loss: {}'.format(loss['D_loss']))
         loss['D_loss'].backward()
         self.D_opt.step()
 
@@ -548,7 +548,7 @@ class STCGAN():
 
 
     def save(self, name):
-        self.logger.info('Saving model: {}'.format(name))
+        # self.logger.info('Saving model: {}'.format(name))
         torch.save(self.G1.state_dict(), os.path.join(self.mdl_dir, name + '_G1.ckpt'))
         torch.save(self.G2.state_dict(), os.path.join(self.mdl_dir, name + '_G2.ckpt'))
         torch.save(self.D1.state_dict(), os.path.join(self.mdl_dir, name + '_D1.ckpt'))
