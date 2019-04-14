@@ -162,6 +162,7 @@ class STCGAN():
         batch_num = len(self.train_loader)
         total_steps = self.start_step
         for epoch in range(self.epoch):
+            print('Epoch: {}'.format(epoch + 1))
             epoch_start_time = time.time()
             self.G1.train()
             self.G2.train()
