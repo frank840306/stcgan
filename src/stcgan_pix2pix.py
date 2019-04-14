@@ -230,7 +230,7 @@ class STCGAN():
                         for output_dir, output_img in zip(output_dirs, output_imgs):
                             fp = os.path.join(output_dir, result_name)
                             img = np.transpose(((output_img.cpu().numpy()[j, :, :, :] + 1) / 2 * 255).astype(np.uint8), [1, 2, 0])
-                            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR) if len(img.shape) == 3 else img
+                            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR) if img.shape[2] == 3 else img
                             cv2.imwrite(fp, img) 
             loss = {k:v / batch_num for k, v in loss.items()}
             # print(loss)
