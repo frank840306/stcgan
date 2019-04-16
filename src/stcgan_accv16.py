@@ -39,6 +39,7 @@ class STCGAN_ACCV16():
         self.hist_step = args.hist_step
         self.test_step = args.test_step
         self.model_step = args.model_step
+        self.start_step = args.start_step
         self.model_name = args.model_name
         self.postfix = args.postfix
         
@@ -125,7 +126,7 @@ class STCGAN_ACCV16():
         start_time = time.time()
         
         batch_num = len(self.train_loader)
-        total_steps = 0
+        total_steps = self.start_step
         for epoch in range(self.epoch):
             print('Epoch: {}'.format(epoch + 1))
             self.G1.train()
