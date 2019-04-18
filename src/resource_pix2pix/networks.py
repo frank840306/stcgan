@@ -147,7 +147,8 @@ class ResnetGeneratorAccv(nn.Module):
             ResnetBlock(input_nc, padding_type=padding_type, norm_layer=norm_layer, use_dropout=use_dropout, use_bias=norm_layer.func==nn.InstanceNorm2d),
             nn.ReflectionPad2d(1),
             nn.Conv2d(input_nc, output_nc, kernel_size=3, padding=0, bias=use_bias),
-            norm_layer(output_nc)
+            norm_layer(output_nc),
+            nn.Tanh()
         ]
         return nn.Sequential(*fusion_block)
 

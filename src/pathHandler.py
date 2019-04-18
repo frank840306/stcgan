@@ -31,7 +31,7 @@ class PathHandler():
     def set_task_dir(self):
         self.mdl_dir = os.path.join(self.task_dir, 'mdl')
         self.log_dir = os.path.join(self.task_dir, 'log')
-        
+
         self.valid_dir = os.path.join(self.task_dir, 'valid')
         self.valid_mask_dir = os.path.join(self.valid_dir, 'mask')
         self.valid_shadow_free_dir = os.path.join(self.valid_dir, 'non_shadow')

@@ -9,6 +9,7 @@ from logHandler import get_logger, set_logger
 
 from stcgan_pix2pix import STCGAN
 from stcgan_accv16 import STCGAN_ACCV16
+from stcganGlobalHist import StcganGlobalHist
 
 def get_args():
 
@@ -55,7 +56,8 @@ if __name__ == "__main__":
         net = STCGAN(args, path)
     elif args.task_name == 'stcgan_accv16':
         net = STCGAN_ACCV16(args, path)
-
+    elif args.task_name == 'stgan_hist':
+        net = StcganGlobalHist(args, path)
     # end_time = time.time()
     # print('Time of initializing model: {} sec'.format(end_time - start_time))
 
