@@ -128,7 +128,7 @@ class STCGAN_ACCV16():
         batch_num = len(self.train_loader)
         total_steps = self.start_step
         for epoch in range(self.epoch):
-            print('Epoch: {}'.format(epoch + 1))
+            # print('Epoch: {}'.format(epoch + 1))
             self.G1.train()
             self.G2.train()
             # self.logger.info('epoch {}'.format(epoch))
@@ -165,6 +165,7 @@ class STCGAN_ACCV16():
                     total_steps += 1
                     t.set_postfix(G1_loss=trainLoss['G1_loss'], G2_loss=trainLoss['G2_loss'], D1_loss=trainLoss['D1_loss'], D2_loss=trainLoss['D2_loss'])
                     t.update()
+            print('Iteration: {}'.format(total_steps))
         self.train_writer.close()
         self.test_writer.close()
 
