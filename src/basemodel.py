@@ -13,6 +13,7 @@ class BaseModel():
 
 
 
+
     def save_cfg(self):
         cfg_json = os.path.join(self.path.log_dir, 'cfg.json')
         writeJson(self.__dict__, cfg_json)
