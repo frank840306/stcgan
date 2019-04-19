@@ -122,10 +122,14 @@ class STCGAN_ACCV16():
         self.train_writer = SummaryWriter(os.path.join(self.path.log_dir, 'train'))
         self.test_writer = SummaryWriter(os.path.join(self.path.log_dir, 'test'))
         
-        
-
         self.D1.train()
         self.D2.train()
+        
+        for param in self.G1.parameters():
+            param.requires_grad = False
+        for param in self.G2.parameters():
+            param.requires_grad = False
+
         self.logger.info('Start training...')
         start_time = time.time()
         
@@ -165,7 +169,8 @@ class STCGAN_ACCV16():
 
                     if (total_steps + 1) % self.model_step == 0:
                         self.visualize(total_steps + 1)
-                        self.save('latest_{:07d}'.format(total_steps + 1))
+                        self.save_fusionNet('latest_{:07d}'.format(total_steps + 1))
+                        # self.save('latest_{:07d}'.format(total_steps + 1))
                     total_steps += 1
                     t.set_postfix(G1_loss=trainLoss['G1_loss'], G2_loss=trainLoss['G2_loss'], D1_loss=trainLoss['D1_loss'], D2_loss=trainLoss['D2_loss'])
                     t.update()
@@ -353,7 +358,7 @@ class STCGAN_ACCV16():
         
         G2_R_l1_loss = self.l1_loss(pair['R_fake'], pair['N_real'])
         G2_N_l1_loss = self.l1_loss(pair['N_fake'], pair['N_real'])
-        G2_l1_loss = (G2_R_l1_loss + G2_N_l1_loss) * 0.5
+        G2_l1_loss = (G2_R_l1_loss * 0.3 + G2_N_l1_loss * 0.7)
 
         D1_fake = self.D1(pair['SM_fake'])
         D2_R_fake = self.D2(pair['SRM_fake'])
@@ -363,7 +368,7 @@ class STCGAN_ACCV16():
         G1_gan_loss = self.gan_loss(D1_fake, True)
         G2_R_gan_loss = self.gan_loss(D2_R_fake, True)
         G2_N_gan_loss = self.gan_loss(D2_N_fake, True)
-        G2_gan_loss = (G2_R_gan_loss + G2_N_gan_loss) * 0.5
+        G2_gan_loss = (G2_R_gan_loss * 0.3 + G2_N_gan_loss * 0.7)
 
         G1_loss = G1_l1_loss + G1_gan_loss * self.lambda2
         G2_loss = G2_l1_loss * self.lambda1 + G2_gan_loss * self.lambda3
@@ -389,6 +394,7 @@ class STCGAN_ACCV16():
         for name, value in hist.items():
             writer.add_scalar(name, value, total_steps)
 
+
     def save(self, name):
         # self.logger.info('Saving model: {}'.format(name))
         torch.save(self.G1.state_dict(), os.path.join(self.mdl_dir, name + '_G1.ckpt'))
@@ -397,6 +403,10 @@ class STCGAN_ACCV16():
         torch.save(self.D2.state_dict(), os.path.join(self.mdl_dir, name + '_D2.ckpt'))
         # writePickle(self.train_hist, os.path.join(self.mdl_dir, self.__class__.__name__ + '_history.pkl'))
     
+    def save_fusionNet(self, name):
+        torch.save(self.G3.state_dict(), os.path.join(self.mdl_dir, name + '_G3.ckpt'))
+        
+
     def load(self):
         # name, best or latest
         

@@ -137,7 +137,7 @@ class STCGAN():
         self.D2 = networks.define_D(input_nc=3+3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
 
         self.G_opt = optim.Adam(list(self.G1.parameters()) + list(self.G2.parameters()), lr=args.lrG, betas=(args.beta1, args.beta2))
-        self.D_opt = optim.Adam(list(self.D1.parameters()) + list(self.D2.parameters()), lr=args.lrD, betas=(args.beta1, args.beta2))
+        self.D_opt = optim.Adam(list(self.D1.parameters()) + slist(self.D2.parameters()), lr=args.lrD, betas=(args.beta1, args.beta2))
 
         self.l1_loss = nn.L1Loss().to(self.device)
         self.gan_loss = networks.GANLoss(use_lsgan=False).to(self.device)
