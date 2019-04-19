@@ -85,6 +85,8 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
         net = UnetGenerator(input_nc, output_nc, 5, ngf, norm_layer=norm_layer, use_dropout=use_dropout)
     elif netG == 'resnet_accv':
         net = ResnetGeneratorAccv(input_nc, output_nc, ngf, norm_layer=norm_layer, use_dropout=use_dropout, n_blocks=6)
+    elif netG == 'fusion_block':
+        net = FusionGenerator(input_nc, output_nc, ngf, norm_layer=norm_layer, use_dropout=use_dropout)
     else:
         raise NotImplementedError('Generator model name [%s] is not recognized' % netG)
     return init_net(net, init_type, init_gain, gpu_ids)
@@ -135,7 +137,27 @@ class GANLoss(nn.Module):
     def __call__(self, input, target_is_real):
         target_tensor = self.get_target_tensor(input, target_is_real)
         return self.loss(input, target_tensor)
+# Frank
+class FusionGenerator(nn.Module):
+    def __init__(self, input_nc, output_nc, ngf=64, norm_layer=nn.BatchNorm2d, use_dropout=False, padding_type='reflect'):
+        super(FusionGenerator, self).__init__()
+        self.fusion_block = self.build_fusion_block(input_nc, output_nc, norm_layer=norm_layer, use_dropout=use_dropout, use_bias=norm_layer.func==nn.InstanceNorm2d, padding_type=padding_type)
 
+    def build_fusion_block(self, input_nc, output_nc, norm_layer, use_dropout, use_bias, padding_type):
+        fusion_block = [
+            ResnetBlock(input_nc, padding_type=padding_type, norm_layer=norm_layer, use_dropout=use_dropout, use_bias=norm_layer.func==nn.InstanceNorm2d),
+            nn.ReflectionPad2d(1),
+            nn.Conv2d(input_nc, output_nc, kernel_size=3, padding=0, bias=use_bias),
+            norm_layer(output_nc),
+            nn.Sigmoid()
+        ]
+        return nn.Sequential(*fusion_block)
+
+    def forward(self, x1, x2):
+        alpha = self.fusion_block(torch.cat((x1, x2), 1))
+        out = x1 * alpha + x2 * (1 - alpha)
+        return out
+# Frank
 class ResnetGeneratorAccv(nn.Module):
     def __init__(self, input_nc, output_nc, ngf=64, norm_layer=nn.BatchNorm2d, use_dropout=False, n_blocks=6, padding_type='reflect'):
         super(ResnetGeneratorAccv, self).__init__()
@@ -148,7 +170,7 @@ class ResnetGeneratorAccv(nn.Module):
             nn.ReflectionPad2d(1),
             nn.Conv2d(input_nc, output_nc, kernel_size=3, padding=0, bias=use_bias),
             norm_layer(output_nc),
-            nn.Tanh()
+            nn.Sigmoid()
         ]
         return nn.Sequential(*fusion_block)
 
