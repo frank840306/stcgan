@@ -106,7 +106,7 @@ class STCGAN_ACCV16():
         # model
         self.G1 = networks.define_G(input_nc=3, output_nc=1, ngf=64, netG='resnet_6blocks', gpu_ids=[args.gpu_id])
         self.G2 = networks.define_G(input_nc=3+1, output_nc=3, ngf=64, netG='resnet_6blocks', gpu_ids=[args.gpu_id])
-        self.G3 = networks.define_G(input=3+3, output_nc=3, ngf=64, netG='fusion_block', gpu_ids=[args.gpu_id])
+        self.G3 = networks.define_G(input_nc=3+3, output_nc=3, ngf=64, netG='fusion_block', gpu_ids=[args.gpu_id])
         self.D1 = networks.define_D(input_nc=3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
         self.D2 = networks.define_D(input_nc=3+3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
         
@@ -156,6 +156,7 @@ class STCGAN_ACCV16():
                     # self.logger.info('[ Training ] Epoch: {:3d} batch: {:3d} Loss: {:.3f} [G: {:.3f}] [D: {:.3f}] [G1: {:.3f}] [G2: {:.3f}] [D1: {:.3f}] [D2: {:.3f}]'.format(
                     #     epoch, i+1, trainPair['G_loss'] + trainPair['D_loss'], trainPair['G_loss'], trainPair['D_loss'], trainPair['G1_loss'], trainPair['G2_loss'], trainPair['D1_loss'], trainPair['D2_loss']
                     # ))
+                    
                     if (total_steps + 1) % self.hist_step == 0:
                         # hist = {}
                         # hist.update(trainLoss)
@@ -428,5 +429,19 @@ class STCGAN_ACCV16():
         self.D1.load_state_dict(torch.load(os.path.join(self.mdl_dir, mdl + '_D1.ckpt')))
         self.D2.load_state_dict(torch.load(os.path.join(self.mdl_dir, mdl + '_D2.ckpt')))
         # self.train_hist = readPickle(os.path.join(self.mdl_dir, self.__class__.__name__ + '_history.pkl'))
-    def load(self):
+    def load_fusionNet(self):
         # load fusionNet 
+        if self.model_name == 'latest':
+            # load latest
+            mdl = sorted(glob.glob(os.path.join(self.mdl_dir, 'latest*')))[-1].split('/')[-1][:-8]
+            
+        elif self.model_name == 'best':
+            # load best
+            mdl = sorted(glob.glob(os.path.join(self.mdl_dir, 'best*')))[-1].split('/')[-1][:-8]
+            
+        else:
+            # load by name
+            mdl = self.model_name
+        
+        self.logger.info('Loading model: {}'.format(mdl))
+        self.G1.load_state_dict(torch.load(os.path.join(self.mdl_dir, mdl + '_G3.ckpt')))

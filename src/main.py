@@ -54,7 +54,7 @@ if __name__ == "__main__":
     # start_time = time.time()
     if args.task_name == 'stcgan':
         net = STCGAN(args, path)
-    elif args.task_name == 'stcgan_accv16':
+    elif args.task_name == 'stcgan_fusion':
         net = STCGAN_ACCV16(args, path)
     # end_time = time.time()
     # print('Time of initializing model: {} sec'.format(end_time - start_time))
