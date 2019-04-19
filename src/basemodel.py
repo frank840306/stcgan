@@ -1,3 +1,4 @@
+import os
 from fileio import *
 
 
@@ -9,6 +10,8 @@ class BaseModel():
         for key in kwargs:
             setattr(self, key, kwargs[key])
         self.save_cfg()
+
+
 
     def save_cfg(self):
         cfg_json = os.path.join(self.path.log_dir, 'cfg.json')
