@@ -167,7 +167,6 @@ class STCGAN_CONCAT():
 
                     if (total_steps + 1) % self.model_step == 0:
                         self.visualize(total_steps + 1)
-                        self.save_fusionNet('latest_{:07d}'.format(total_steps + 1))
                         self.save('latest_{:07d}'.format(total_steps + 1))
                     total_steps += 1
                     t.set_postfix(G1_loss=trainLoss['G1_loss'], G2_loss=trainLoss['G2_loss'], D1_loss=trainLoss['D1_loss'], D2_loss=trainLoss['D2_loss'])
