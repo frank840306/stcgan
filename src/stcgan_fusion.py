@@ -125,10 +125,10 @@ class STCGAN_ACCV16():
         self.D1.train()
         self.D2.train()
         
-        for param in self.G1.parameters():
-            param.requires_grad = False
-        for param in self.G2.parameters():
-            param.requires_grad = False
+        # for param in self.G1.parameters():
+        #     param.requires_grad = False
+        # for param in self.G2.parameters():
+        #     param.requires_grad = False
 
         self.logger.info('Start training...')
         start_time = time.time()
@@ -139,16 +139,14 @@ class STCGAN_ACCV16():
             # print('Epoch: {}'.format(epoch + 1))
             self.G1.train()
             self.G2.train()
+            self.G3.train()
             # self.logger.info('epoch {}'.format(epoch))
             with trange(len(self.train_loader)) as t:
                 for i, (S_img, N_img, M_img, A_img) in enumerate(self.train_loader):
                     # self.logger.info('Iteration: {}'.format(i))
                     # A_real(shadow, S_img), B_real(shadow_free, N_img), C_real(mask, M_img)
                     trainPair = self.set_input(S_img, N_img, M_img, A_img)
-                    # self.A_real = shadow_img.to(self.device)
-                    # self.B_real = shadow_free_img.to(self.device)
-                    # self.C_real = mask_img.to(self.device)
-
+                    
                     trainPair, trainLoss = self.optimize_parameter(trainPair)
                     # sys.stdout.write('[ Training ] Epoch: {:4d}/{:4d} batch: {:3d}/{:3d} Loss: {:.4f} [G: {:.4f}] [D: {:.4f}] [G1: {:.4f}] [G2: {:.4f}] [D1: {:.4f}] [D2: {:.4f}]\r'.format(
                     #     epoch+1, self.epoch, i+1, batch_num, trainLoss['G_loss'] + trainLoss['D_loss'], trainLoss['G_loss'], trainLoss['D_loss'], trainLoss['G1_loss'], trainLoss['G2_loss'], trainLoss['D1_loss'], trainLoss['D2_loss']
@@ -171,11 +169,11 @@ class STCGAN_ACCV16():
                     if (total_steps + 1) % self.model_step == 0:
                         self.visualize(total_steps + 1)
                         self.save_fusionNet('latest_{:07d}'.format(total_steps + 1))
-                        # self.save('latest_{:07d}'.format(total_steps + 1))
+                        self.save('latest_{:07d}'.format(total_steps + 1))
                     total_steps += 1
                     t.set_postfix(G1_loss=trainLoss['G1_loss'], G2_loss=trainLoss['G2_loss'], D1_loss=trainLoss['D1_loss'], D2_loss=trainLoss['D2_loss'])
                     t.update()
-            print('Iteration: {}'.format(total_steps))
+            print('Iteration: {}, epoch : {} / {}'.format(total_steps, epoch + 1, self.epoch))
         self.train_writer.close()
         self.test_writer.close()
 
@@ -183,6 +181,7 @@ class STCGAN_ACCV16():
         with torch.no_grad():
             self.G1.eval()
             self.G2.eval()
+            self.G3.eval()
             loss = {}
             batch_num = len(self.test_loader)
             for i, (S_img, N_img, M_img, A_img) in enumerate(self.test_loader):
@@ -429,6 +428,8 @@ class STCGAN_ACCV16():
         self.D1.load_state_dict(torch.load(os.path.join(self.mdl_dir, mdl + '_D1.ckpt')))
         self.D2.load_state_dict(torch.load(os.path.join(self.mdl_dir, mdl + '_D2.ckpt')))
         # self.train_hist = readPickle(os.path.join(self.mdl_dir, self.__class__.__name__ + '_history.pkl'))
+        self.load_fusionNet()
+
     def load_fusionNet(self):
         # load fusionNet 
         if self.model_name == 'latest':
@@ -444,4 +445,4 @@ class STCGAN_ACCV16():
             mdl = self.model_name
         
         self.logger.info('Loading model: {}'.format(mdl))
-        self.G1.load_state_dict(torch.load(os.path.join(self.mdl_dir, mdl + '_G3.ckpt')))
+        self.G3.load_state_dict(torch.load(os.path.join(self.mdl_dir, mdl + '_G3.ckpt')))

@@ -5,6 +5,32 @@ This is an unofficial implementation of CVPR 2018 "Stacked Conditional Generativ
 # Q&A
 1. what's the difference between natural scene and documents shadow removal?
     
+# EXPERIMENT
+1. stcgan_fusion.py
+   ---------          ----------          ----------          ------------
+   | S_img |  ----->  | STCGAN |  ----->  | N1_img |  ----->  |          |
+   ---------          ----------          ----------          |          |         ---------
+       |                                                      | Blending |  -----> | N_img |
+       |              ----------          ----------          |          |         ---------
+       ------------>  |  ACCV  |  ----->  | N2_img |  ----->  |          |
+                      ----------          ----------          ------------
+
+2. pix2pix.py
+   ---------          ----------          ----------          ----------         ---------
+   | S_img |  ----->  |  ACCV  |  ----->  | N1_img |  ----->  | STCGAN |  -----> | N_img |
+   ---------          ----------          ----------          ----------         ---------
+
+
+3. stcgan_concat.py
+   ---------          ----------          ----------          ----------
+   | S_img |  ----->  |  ACCV  |  ----->  | N1_img |  ----->  |        |
+   ---------          ----------          ----------          |        |         ---------
+       |                                                      | STCGAN |  -----> | N_img |
+       |                                                      |        |         ---------
+       ---------------------------------------------------->  |        |
+                                                              ----------
+
+
 
 # TODO
 
@@ -33,6 +59,10 @@ This is an unofficial implementation of CVPR 2018 "Stacked Conditional Generativ
     python src/eval.py DSRD_aligned /media/yslin/SSD_DATA/research/processed_dataset/DSRD_aligned/test/shadow
     python src/eval.py DSRD_aligned /media/yslin/SSD_DATA/research/processed_dataset/DSRD_aligned/result/ACCV2016
     python src/eval.py DSRD_all /media/yslin/SSD_DATA/research/stcgan/task/stcgan_lrG_0.001_lrD_0.001/DSRD_all/result/non_shadow
+    
+
+    python src/eval.py Blender39_aligned /media/yslin/SSD_DATA/research/processed_dataset/Blender39_aligned/test/shadow
+    
     <!-- python src/eval.py DSRD_text /media/yslin/SSD_DATA/research/stcgan/task/stcgan_lrG_0.001_lrD_0.001/DSRD_all/result/non_shadow -->
     <!-- python src/eval.py DSRD_text /media/yslin/SSD_DATA/research/stcgan/task/stcgan_lrG_0.001_lrD_0.001/DSRD_text/result/non_shadow -->
 5. visualize grid result

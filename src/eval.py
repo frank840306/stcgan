@@ -1,5 +1,6 @@
 import os
 import cv2
+import glob
 import numpy as np
 from enum import IntEnum
 from copy import deepcopy
@@ -97,7 +98,8 @@ def eval_func(ftrue, ftest, fmask=None, metrics=MetricType.ALL):
 def eval_dir_func(true_dir, test_dir, mask_dir=None, metrics=MetricType.ALL):
     logger = get_logger(__name__)
     avg_scores = deepcopy(default_score_dict)
-    flist = sorted(os.listdir(test_dir))
+    # flist = sorted(os.listdir(test_dir))
+    flist = [os.path.basename(f) for f in sorted(glob.glob(os.path.join(test_dir, '*.png')))]
     # true_flist = sorted(os.listdir(true_dir))
     # test_flist = ['{:06d}.png'.format(idx) for idx in range(os.listdir(test_dir))]
     # assert(true_flist == test_flist)
@@ -172,7 +174,7 @@ if __name__ == '__main__':
     import sys
     logger.info('[ Eval.py ] argv: {}'.format(sys.argv))
     assert(len(sys.argv) == 3)
-    assert(sys.argv[1].startswith('ISTD') or sys.argv[1].startswith('DSRD'))
+    # assert(sys.argv[1].startswith('ISTD') or sys.argv[1].startswith('DSRD'))
     root_dir = os.path.join('/media', 'yslin', 'SSD_DATA', 'research', 'processed_dataset', sys.argv[1], 'test')
     true_dir = os.path.join(root_dir, 'non_shadow')
     mask_dir = os.path.join(root_dir, 'mask')

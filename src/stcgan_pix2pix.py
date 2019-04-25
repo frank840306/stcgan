@@ -135,6 +135,8 @@ class STCGAN():
         self.G2 = networks.define_G(input_nc=4, output_nc=3, ngf=64, netG='resnet_6blocks', gpu_ids=[args.gpu_id])
         self.D1 = networks.define_D(input_nc=3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
         self.D2 = networks.define_D(input_nc=3+3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
+        # self.D1 = networks.define_D(input_nc=3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
+        # self.D2 = networks.define_D(input_nc=3+3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
 
         self.G_opt = optim.Adam(list(self.G1.parameters()) + list(self.G2.parameters()), lr=args.lrG, betas=(args.beta1, args.beta2))
         self.D_opt = optim.Adam(list(self.D1.parameters()) + list(self.D2.parameters()), lr=args.lrD, betas=(args.beta1, args.beta2))

@@ -7,8 +7,10 @@ import numpy as np
 from pathHandler import PathHandler
 from logHandler import get_logger, set_logger
 
+from pix2pix import Pix2pix
 from stcgan_pix2pix import STCGAN
 from stcgan_fusion import STCGAN_ACCV16
+from stcgan_concat import STCGAN_CONCAT
 # from stcganGlobalHist import StcganGlobalHist
 
 def get_args():
@@ -52,16 +54,22 @@ if __name__ == "__main__":
     logger.info(args)
     
     # start_time = time.time()
-    if args.task_name == 'stcgan':
+    if args.task_name == 'pix2pix':
+        net = Pix2pix(args, path)
+    elif args.task_name == 'stcgan':
         net = STCGAN(args, path)
     elif args.task_name == 'stcgan_fusion':
         net = STCGAN_ACCV16(args, path)
+    elif args.task_name == 'stcagn_concat':
+        net = STCGAN_CONCAT(args, path)
+
     # end_time = time.time()
     # print('Time of initializing model: {} sec'.format(end_time - start_time))
 
     if args.load_model:
         # start_time = time.time()
         net.load()
+        # net.load_fusionNet()
         # end_time = time.time()
         # print('Time of loading model: {} sec'.format(end_time - start_time))
 
