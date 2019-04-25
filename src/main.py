@@ -60,7 +60,7 @@ if __name__ == "__main__":
         net = STCGAN(args, path)
     elif args.task_name == 'stcgan_fusion':
         net = STCGAN_ACCV16(args, path)
-    elif args.task_name == 'stcagn_concat':
+    elif args.task_name == 'stcgan_concat':
         net = STCGAN_CONCAT(args, path)
 
     # end_time = time.time()
