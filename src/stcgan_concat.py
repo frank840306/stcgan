@@ -291,7 +291,7 @@ class STCGAN_CONCAT():
         }
 
     def forward(self, pair):
-        pair['M_fake'] = self.G1(torch.cat(pair['S_real'], pair['A_real']))
+        pair['M_fake'] = self.G1(torch.cat((pair['S_real'], pair['A_real']), 1))
         pair['SAM_real'] = torch.cat((pair['S_real'], pair['A_real'], pair['M_real']), 1)
         pair['SAM_fake'] = torch.cat((pair['S_real'], pair['A_real'], pair['M_fake']), 1)
         
