@@ -28,7 +28,7 @@ from logHandler import get_logger
 
 from resource_pix2pix import networks
 
-class STCGAN_ACCV16():
+class STCGAN_CONCAT():
     def __init__(self, args, path):
         self.logger = get_logger(__name__)
         self.mode = args.mode
