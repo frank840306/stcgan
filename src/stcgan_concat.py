@@ -107,8 +107,11 @@ class STCGAN_CONCAT():
         self.G1 = networks.define_G(input_nc=3+3, output_nc=1, ngf=64, netG='resnet_6blocks', gpu_ids=[args.gpu_id])
         self.G2 = networks.define_G(input_nc=3+3+1, output_nc=3, ngf=64, netG='resnet_6blocks', gpu_ids=[args.gpu_id])
         # self.G3 = networks.define_G(input_nc=3+3, output_nc=3, ngf=64, netG='fusion_block', gpu_ids=[args.gpu_id])
-        self.D2 = networks.define_D(input_nc=3+3+3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
-        self.D1 = networks.define_D(input_nc=3+3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
+        # self.D1 = networks.define_D(input_nc=3+3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
+        # self.D2 = networks.define_D(input_nc=3+3+3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
+        
+        self.D1 = networks.define_D(input_nc=3+3+1, ndf=64, netD='pixel', use_sigmoid=True, gpu_ids=[args.gpu_id])
+        self.D2 = networks.define_D(input_nc=3+3+3+1, ndf=64, netD='pixel', use_sigmoid=True, gpu_ids=[args.gpu_id])
         
 
         self.G_opt = optim.Adam(list(self.G1.parameters()) + list(self.G2.parameters()), lr=args.lrG, betas=(args.beta1, args.beta2))
@@ -225,17 +228,25 @@ class STCGAN_CONCAT():
                 pass
         return
 
-    def infer(self, fimg):
+    def infer(self, fimg1, fimg2):
         with torch.no_grad():
             self.G1.eval()
             self.G2.eval()
-            img = cv2.imread(fimg)
-            h, w, c = img.shape
-            img = cv2.resize(img, (w - w % 32, h - h % 32))
-            img = np.transpose(img, (2, 0, 1))
-            img = (img.astype(np.float32) / 255 - 0.5) / 0.5
-            img = img[np.newaxis, :, :, :]
-            img = torch.from_numpy(img)
+            fimgs = [fimg1, fimg2]
+            torch_imgs = []
+            for fimg in fimgs:
+                img = cv2.imread(fimg)
+            # img2 = cv2.imread(fimg2)
+            
+                h, w, c = img.shape
+                img = cv2.resize(img, (w - w % 32, h - h % 32))
+                img = np.transpose(img, (2, 0, 1))
+                img = (img.astype(np.float32) / 255 - 0.5) / 0.5
+                img = img[np.newaxis, :, :, :]
+            
+                torch_imgs.append(torch.from_numpy(img))
+            
+            img = torch.cat((torch_imgs[0], torch_imgs[1]), 1)
             img = torch.autograd.Variable(img).cuda()
             out_M = self.G1(img)
             out_N = self.G2(torch.cat((img, out_M), 1))[-1]

@@ -80,11 +80,15 @@ if __name__ == "__main__":
     elif args.mode == 'infer':
         exts = ['png', 'PNG', 'jpg', 'JPG']
         # exec_times = []
-        for fname in sorted(os.listdir('demo')):
+        fnames = ['D0401M004C01N00001.png', 'D0401M007C01N00001.png', 'D0421M007C01N00001.png', 'IMG_2961_1.JPG']
+        for fname in fnames:
+        # for fname in sorted(os.listdir('demo')):
             for ext in exts:
                 if fname.endswith(ext):
                     # start_time = time.time()
-                    net.infer(os.path.join('demo', fname))
+                    # net.infer(os.path.join('demo', fname))
+                    net.infer(os.path.join('demo', fname), os.path.join('demo', 'ACCV', fname))
+                    
                     # end_time = time.time()
                     # exec_times.append(end_time - start_time)
         # print('Average time of predicting single image: {} sec'.format(np.mean(exec_times)))

@@ -65,7 +65,7 @@ class ShadowRemovalDataset(Dataset):
         shadow_img = tfs(shadow_img)
         shadow_free_img = tfs(shadow_free_img)
         mask_img = tfs(mask_img)
-        #print(shadow_img.size())
+        # print(shadow_img.size())
         return shadow_img, shadow_free_img, mask_img
 
         # CHW
