@@ -84,7 +84,7 @@ if __name__ == "__main__":
         exts = ['png', 'PNG', 'jpg', 'JPG']
         fnames = []
         for ext in exts:
-            fnames.append(sorted(glob.glob(os.path.join(args.infer_dir, '*.{}'.format(ext)))))
+            fnames += sorted(glob.glob(os.path.join(args.infer_dir, '*.{}'.format(ext))))
         for fname in fnames:
             net.infer(fname)
         # exec_times = []
