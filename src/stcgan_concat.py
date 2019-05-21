@@ -47,6 +47,9 @@ class STCGAN_CONCAT():
         self.lambda2 = args.lambda2
         self.lambda3 = args.lambda3
 
+        self.infer_dir = args.infer_dir
+        self.result_dir = args.result_dir
+
 
         random.seed(args.manual_seed)
         np.random.seed(args.manual_seed)
@@ -228,15 +231,35 @@ class STCGAN_CONCAT():
                 pass
         return
 
-    def infer(self, fimg1, fimg2):
+    def infer(self, input_file):
+        # infer from accv
+        if not os.path.exists(self.result_dir): os.makedirs(self.result_dir)
+        A_dir = os.path.join(self.result_dir, 'ACCV2016')
+        M_dir = os.path.join(self.result_dir, 'mask')
+        N_dir = os.path.join(self.result_dir, 'non_shadow')
+        if not os.path.exists(A_dir): os.makedirs(A_dir)
+        if not os.path.exists(M_dir): os.makedirs(M_dir)
+        if not os.path.exists(N_dir): os.makedirs(N_dir)
+    
+        basename = os.path.basename(input_file)
+        accv_file = os.path.join(A_dir, basename)
+        mask_file = os.path.join(M_dir, basename)
+        non_shadow_file = os.path.join(N_dir, basename)
+
+        command = '~/Documents/research/RelatedWork/ACCV2016/DocumentShadowRemoval-Code/DocumentShadowRemoval/ShadowRemover {} {} {}'.format(
+            input_file,
+            accv_file,
+            os.path.join(self.result_dir, 'myGlobalHist.txt')
+        )
+        os.system(command)
+        
         with torch.no_grad():
             self.G1.eval()
             self.G2.eval()
-            fimgs = [fimg1, fimg2]
+            fimgs = [input_file, accv_file]
             torch_imgs = []
             for fimg in fimgs:
                 img = cv2.imread(fimg)
-            # img2 = cv2.imread(fimg2)
             
                 h, w, c = img.shape
                 img = cv2.resize(img, (w - w % 32, h - h % 32))
@@ -254,15 +277,15 @@ class STCGAN_CONCAT():
             out_M = (out_M.cpu().numpy() + 1) / 2 * 255
             out_M = out_M.astype(np.uint8)
             out_M = out_M[-1].transpose((1, 2, 0))
-
+            out_M = cv2.resize(out_M, (w, h))
             
             out_N = (out_N.cpu().numpy() + 1) / 2 * 255
             out_N = out_N.astype(np.uint8)
             out_N = out_N.transpose((1, 2, 0))
+            out_N = cv2.resize(out_N, (w, h))
 
-            if not os.path.exists('out'): os.makedirs('out')
-            cv2.imwrite(os.path.join('out', 'mask_' + os.path.basename(fimg)), out_M)
-            cv2.imwrite(os.path.join('out', os.path.basename(fimg)), out_N)
+            cv2.imwrite(mask_file, out_M)
+            cv2.imwrite(non_shadow_file, out_N)
             
     
     def optimize_parameter(self, pair):

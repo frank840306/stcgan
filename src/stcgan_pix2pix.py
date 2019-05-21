@@ -45,6 +45,9 @@ class STCGAN():
         self.lambda2 = args.lambda2
         self.lambda3 = args.lambda3
 
+        self.infer_dir = args.infer_dir
+        self.result_dir = args.result_dir
+
 
         random.seed(args.manual_seed)
         np.random.seed(args.manual_seed)
@@ -347,6 +350,13 @@ class STCGAN():
     #         eval_dir_func(self.path.test_shadow_free_dir, self.path.result_shadow_free_dir, self.path.test_mask_dir, MetricType.MSE | MetricType.RMSE | MetricType.SSIM)
 
     def infer(self, fimg):
+        M_dir = os.path.join(self.result_dir, 'mask')
+        N_dir = os.path.join(self.result_dir, 'non_shadow')
+
+        if not os.path.exists(self.result_dir): os.makedirs(self.result_dir)
+        if not os.path.exists(M_dir): os.makedirs(M_dir)
+        if not os.path.exists(N_dir): os.makedirs(N_dir)
+        
         with torch.no_grad():
             self.G1.eval()
             self.G2.eval()
@@ -371,9 +381,10 @@ class STCGAN():
             out_N = out_N.transpose((1, 2, 0))
             out_N = cv2.resize(out_N, (w, h))
 
-            if not os.path.exists('out'): os.makedirs('out')
-            cv2.imwrite(os.path.join('out', 'mask_' + os.path.basename(fimg)), out_M)
-            cv2.imwrite(os.path.join('out', os.path.basename(fimg)), out_N)
+            
+            
+            cv2.imwrite(os.path.join(M_dir, os.path.basename(fimg)), out_M)
+            cv2.imwrite(os.path.join(N_dir, os.path.basename(fimg)), out_N)
             
     
     def optimize_parameter(self, pair):

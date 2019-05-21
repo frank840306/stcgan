@@ -41,6 +41,8 @@ def get_args():
     parser.add_argument('--start_step', default=0, type=int, help='start step')
     parser.add_argument('--model_name', default='latest', type=str, help='load the model, latest, besr or name')
     parser.add_argument('--dataset_name', default='ISTD', type=str, help='dataset name, ISTD or DSRD')
+    parser.add_argument('--infer_dir', default=None, type=str, help='for infer mode input dir')
+    parser.add_argument('--result_dir', default=None, type=str, help='for infer mode output dir')
     return parser.parse_args()
 
 if __name__ == "__main__":
@@ -78,16 +80,22 @@ if __name__ == "__main__":
     elif args.mode == 'test':
         net.test()
     elif args.mode == 'infer':
+        assert(args.infer_dir is not None and args.result_dir is not None)
         exts = ['png', 'PNG', 'jpg', 'JPG']
-        # exec_times = []
-        fnames = ['D0401M004C01N00001.png', 'D0401M007C01N00001.png', 'D0421M007C01N00001.png', 'IMG_2961_1.JPG']
+        fnames = []
+        for ext in exts:
+            fnames.append(sorted(glob.glob(os.path.join(args.infer_dir, '*.{}'.format(ext)))))
         for fname in fnames:
+            net.infer(fname)
+        # exec_times = []
+        # fnames = ['D0401M004C01N00001.png', 'D0401M007C01N00001.png', 'D0421M007C01N00001.png', 'IMG_2961_1.JPG']
+        # for fname in fnames:
         # for fname in sorted(os.listdir('demo')):
-            for ext in exts:
-                if fname.endswith(ext):
+            # for ext in exts:
+                # if fname.endswith(ext):
                     # start_time = time.time()
                     # net.infer(os.path.join('demo', fname))
-                    net.infer(os.path.join('demo', fname), os.path.join('demo', 'ACCV', fname))
+                    # net.infer(os.path.join('demo', fname), os.path.join('demo', 'ACCV', fname))
                     
                     # end_time = time.time()
                     # exec_times.append(end_time - start_time)
