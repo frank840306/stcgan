@@ -248,7 +248,7 @@ class STCGAN_CONCAT():
 
         command = '~/Documents/research/RelatedWork/ACCV2016/DocumentShadowRemoval-Code/DocumentShadowRemoval/ShadowRemover {} {} {}'.format(
             input_file,
-            accv_file,
+            os.path.splitext(accv_file)[0],
             os.path.join(self.result_dir, 'myGlobalHist.txt')
         )
         os.system(command)
@@ -257,32 +257,45 @@ class STCGAN_CONCAT():
             self.G1.eval()
             self.G2.eval()
             fimgs = [input_file, accv_file]
+            imgs = []
             torch_imgs = []
             for fimg in fimgs:
+                print(fimg)
                 img = cv2.imread(fimg)
-            
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                imgs.append(img.copy())    # HWC, 0 ~ 255
+
                 h, w, c = img.shape
-                img = cv2.resize(img, (w - w % 32, h - h % 32))
-                img = np.transpose(img, (2, 0, 1))
-                img = (img.astype(np.float32) / 255 - 0.5) / 0.5
+                img = cv2.resize(img, (w//2 - (w//2) % 32, h//2 - (h//2) % 32))
+                img = np.transpose(img, (2, 0, 1))  # CHW
+                img = (img.astype(np.float32) / 255 - 0.5) / 0.5    # -1 ~ 1
                 img = img[np.newaxis, :, :, :]
+
+                torch_imgs.append(torch.from_numpy(img))    #CHW, -1 ~ 1
             
-                torch_imgs.append(torch.from_numpy(img))
-            
-            img = torch.cat((torch_imgs[0], torch_imgs[1]), 1)
-            img = torch.autograd.Variable(img).cuda()
-            out_M = self.G1(img)
-            out_N = self.G2(torch.cat((img, out_M), 1))[-1]
+            # torch_imgs = [torch.from_numpy(i) for i in imgs]
+            torch_img = torch.cat((torch_imgs[0], torch_imgs[1]), 1)
+            torch_img = torch.autograd.Variable(torch_img).cuda()
+            out_M = self.G1(torch_img)
+            out_N = self.G2(torch.cat((torch_img, out_M), 1))[-1]
             # TODO: infer is incorrect
             out_M = (out_M.cpu().numpy() + 1) / 2 * 255
             out_M = out_M.astype(np.uint8)
             out_M = out_M[-1].transpose((1, 2, 0))
             out_M = cv2.resize(out_M, (w, h))
+
+            # out_N = out_N.cpu().numpy()
+            out_N = ((out_N.cpu().numpy() + 1) / 2 * 255).transpose((1, 2, 0))
+            # diff = imgs[0]
+            diff = cv2.resize(out_N.astype(np.float32) - cv2.resize(imgs[0].astype(np.float32), (w//2 - (w//2) % 32, h//2 - (h//2) % 32)), (w, h))
+            # print(imgs[0].shape)
+            # print(diff.shape)
+            # diff = ((diff + 1) / 2 * 255).transpose((1, 2, 0))
+
+            out_N = np.clip(imgs[0].astype(np.float32) + diff, 0, 255).astype(np.uint8)
+
             
-            out_N = (out_N.cpu().numpy() + 1) / 2 * 255
-            out_N = out_N.astype(np.uint8)
-            out_N = out_N.transpose((1, 2, 0))
-            out_N = cv2.resize(out_N, (w, h))
+            out_N = cv2.cvtColor(out_N, cv2.COLOR_RGB2BGR)
 
             cv2.imwrite(mask_file, out_M)
             cv2.imwrite(non_shadow_file, out_N)

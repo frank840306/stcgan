@@ -231,10 +231,18 @@ class STCGAN_ACCV16():
         return
 
     def infer(self, fimg):
+        # M_dir = os.path.join(self.result_mask_dir)
+        # N_dir = os.path.join(self.result_shadow_free_dir)
+        # # result_resnet_dir
+        # if not os.path.exists(self.result_dir): os.makedirs(self.result_dir)
+        # if not os.path.exists(M_dir): os.makedirs(M_dir)
+        # if not os.path.exists(N_dir): os.makedirs(N_dir)
+
         with torch.no_grad():
             self.G1.eval()
             self.G2.eval()
             img = cv2.imread(fimg)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             h, w, c = img.shape
             img = cv2.resize(img, (w - w % 32, h - h % 32))
             img = np.transpose(img, (2, 0, 1))
@@ -242,8 +250,28 @@ class STCGAN_ACCV16():
             img = img[np.newaxis, :, :, :]
             img = torch.from_numpy(img)
             img = torch.autograd.Variable(img).cuda()
+
+            ############## A_img
+            basename = os.path.basename(fimg)
+            Afimg = os.path.join('/media/yslin/SSD_DATA/research/processed_dataset/Blender970_dark_aligned/result/ACCV2016/test', basename)
+            Aimg = cv2.imread(Afimg)
+            Aimg = cv2.cvtColor(Aimg, cv2.COLOR_BGR2RGB)
+            # h, w, c = Aimg.shape
+            Aimg = cv2.resize(Aimg, (w - w % 32, h - h % 32))
+            Aimg = np.transpose(Aimg, (2, 0, 1))
+            Aimg = (Aimg.astype(np.float32) / 255 - 0.5) / 0.5
+            Aimg = Aimg[np.newaxis, :, :, :]
+            Aimg = torch.from_numpy(Aimg)
+            Aimg = torch.autograd.Variable(Aimg).cuda() 
+            ############## A_img
+
             out_M = self.G1(img)
-            out_N = self.G2(torch.cat((img, out_M), 1))[-1]
+            out_R = self.G2(torch.cat((img, out_M), 1))
+            # print(out_R.size())
+            # print(Aimg.size())
+            out_N = self.G3(out_R, Aimg)[-1]
+
+
             # TODO: infer is incorrect
             out_M = (out_M.cpu().numpy() + 1) / 2 * 255
             out_M = out_M.astype(np.uint8)
@@ -253,10 +281,12 @@ class STCGAN_ACCV16():
             out_N = (out_N.cpu().numpy() + 1) / 2 * 255
             out_N = out_N.astype(np.uint8)
             out_N = out_N.transpose((1, 2, 0))
+            out_N = cv2.cvtColor(out_N, cv2.COLOR_RGB2BGR)
 
-            if not os.path.exists('out'): os.makedirs('out')
-            cv2.imwrite(os.path.join('out', 'mask_' + os.path.basename(fimg)), out_M)
-            cv2.imwrite(os.path.join('out', os.path.basename(fimg)), out_N)
+            N_dir = '/media/yslin/SSD_DATA/research/stcgan_fusion/task/stcgan_fusion_lrG_0.0001_lrD_0.0001/Blender970_dark_aligned_pretrain_Blender/result/non_shadow'
+            if not os.path.exists(N_dir): os.makedirs(N_dir)
+            # cv2.imwrite(os.path.join(N_dir, 'mask_' + os.path.basename(fimg)), out_M)
+            cv2.imwrite(os.path.join(N_dir, os.path.basename(fimg)), out_N)
             
     
     def optimize_parameter(self, pair):

@@ -136,10 +136,10 @@ class STCGAN():
         # model
         self.G1 = networks.define_G(input_nc=3, output_nc=1, ngf=64, netG='resnet_6blocks', gpu_ids=[args.gpu_id])
         self.G2 = networks.define_G(input_nc=4, output_nc=3, ngf=64, netG='resnet_6blocks', gpu_ids=[args.gpu_id])
-        #self.D1 = networks.define_D(input_nc=3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
-        #self.D2 = networks.define_D(input_nc=3+3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
-        self.D1 = networks.define_D(input_nc=3+1, ndf=64, netD='pixel', use_sigmoid=True, gpu_ids=[args.gpu_id])
-        self.D2 = networks.define_D(input_nc=3+3+1, ndf=64, netD='pixel', use_sigmoid=True, gpu_ids=[args.gpu_id])
+        self.D1 = networks.define_D(input_nc=3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
+        self.D2 = networks.define_D(input_nc=3+3+1, ndf=64, netD='n_layers', use_sigmoid=True, gpu_ids=[args.gpu_id])
+        # self.D1 = networks.define_D(input_nc=3+1, ndf=64, netD='pixel', use_sigmoid=True, gpu_ids=[args.gpu_id])
+        # self.D2 = networks.define_D(input_nc=3+3+1, ndf=64, netD='pixel', use_sigmoid=True, gpu_ids=[args.gpu_id])
 
         self.G_opt = optim.Adam(list(self.G1.parameters()) + list(self.G2.parameters()), lr=args.lrG, betas=(args.beta1, args.beta2))
         self.D_opt = optim.Adam(list(self.D1.parameters()) + list(self.D2.parameters()), lr=args.lrD, betas=(args.beta1, args.beta2))
@@ -361,8 +361,11 @@ class STCGAN():
             self.G1.eval()
             self.G2.eval()
             img = cv2.imread(fimg)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            ori_S = img.copy()
+
             h, w, c = img.shape
-            img = cv2.resize(img, (w - w % 32, h - h % 32))
+            img = cv2.resize(img, (w//2 - (w//2) % 32, h//2 - (h//2) % 32))
             img = np.transpose(img, (2, 0, 1))
             img = (img.astype(np.float32) / 255 - 0.5) / 0.5
             img = img[np.newaxis, :, :, :]
@@ -376,13 +379,16 @@ class STCGAN():
             out_M = out_M[-1].transpose((1, 2, 0))
             out_M = cv2.resize(out_M, (w, h))
             
-            out_N = (out_N.cpu().numpy() + 1) / 2 * 255
-            out_N = out_N.astype(np.uint8)
-            out_N = out_N.transpose((1, 2, 0))
-            out_N = cv2.resize(out_N, (w, h))
+            out_N = ((out_N.cpu().numpy() + 1) / 2 * 255).transpose((1, 2, 0))
+            diff = cv2.resize(out_N.astype(np.float32) - cv2.resize(ori_S.astype(np.float32), (w//2 - (w//2) % 32, h//2 - (h//2) % 32)), (w, h))
+            out_N = np.clip(ori_S.astype(np.float32) + diff, 0, 255).astype(np.uint8)
+            out_N = cv2.cvtColor(out_N, cv2.COLOR_RGB2BGR)
 
-            
-            
+            # out_N = (out_N.cpu().numpy() + 1) / 2 * 255
+            # out_N = out_N.astype(np.uint8)
+            # out_N = out_N.transpose((1, 2, 0))
+            # out_N = cv2.resize(out_N, (w, h))
+
             cv2.imwrite(os.path.join(M_dir, os.path.basename(fimg)), out_M)
             cv2.imwrite(os.path.join(N_dir, os.path.basename(fimg)), out_N)
             

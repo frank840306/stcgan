@@ -205,6 +205,7 @@ class Pix2pix():
         with torch.no_grad():
             self.G.eval()
             img = cv2.imread(fimg)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             print('cv read')
             h, w, c = img.shape
             img = cv2.resize(img, (w - w % 32, h - h % 32))
@@ -220,10 +221,11 @@ class Pix2pix():
             out_N = out_N.astype(np.uint8)
             print('out: {}'.format(out_N[0].shape))
             out_N = out_N[0].transpose((1, 2, 0))
+            out_N = cv2.cvtColor(out_N, cv2.COLOR_RGB2BGR)
 
-            if not os.path.exists('out'): os.makedirs('out')
-            cv2.imwrite(os.path.join('out', os.path.basename(fimg)), out_N)
-            
+            N_dir = '/media/yslin/SSD_DATA/research/pix2pix/task/pix2pix_lrG_0.0001_lrD_0.0001_accv_pix2pix_lambda_0.005/Blender970_dark_aligned_accv/result/non_shadow'
+            if not os.path.exists(N_dir): os.makedirs(N_dir)
+            cv2.imwrite(os.path.join(N_dir, os.path.basename(fimg)), out_N)
     
     def optimize_parameter(self, pair):
         pair = self.forward(pair)
